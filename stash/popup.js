@@ -3,6 +3,43 @@ const $ = (id) => document.getElementById(id);
 // เก็บเฉพาะแท็บที่เปิดคืนได้จริง (ไม่เอา chrome://, edge://, หน้า extension)
 const STASHABLE = /^(https?|file):/;
 
+let currentLang = "th";
+
+const TRANSLATIONS = {
+  th: {
+    placeholder: "ตั้งชื่อเซสชัน (ไม่บังคับ)",
+    stashBtn: "📥 เก็บแท็บทั้งหมด แล้วปิด",
+    stashBtnEmpty: "📥 ไม่มีแท็บที่เก็บได้",
+    tabCount: (n) => `หน้าต่างนี้มี ${n} แท็บที่เก็บได้`,
+    savedSessions: "เซสชันที่เก็บไว้",
+    emptySessions: "ยังไม่มีเซสชันที่เก็บไว้",
+    timeJustNow: "เมื่อครู่",
+    timeMinAgo: (m) => `${m} นาทีที่แล้ว`,
+    timeHourAgo: (h) => `${h} ชม.ที่แล้ว`,
+    timeDayAgo: (d) => `${d} วันที่แล้ว`,
+    defaultName: (d, t) => `เก็บเมื่อ ${d} ${t}`,
+    restoreBtn: "เปิดคืน",
+    delConfirm: "ลบ?",
+    tabsUnit: "แท็บ"
+  },
+  en: {
+    placeholder: "Session name (optional)",
+    stashBtn: "📥 Stash all tabs and close",
+    stashBtnEmpty: "📥 No stashable tabs",
+    tabCount: (n) => `This window has ${n} stashable tabs`,
+    savedSessions: "Saved Sessions",
+    emptySessions: "No saved sessions",
+    timeJustNow: "just now",
+    timeMinAgo: (m) => `${m}m ago`,
+    timeHourAgo: (h) => `${h}h ago`,
+    timeDayAgo: (d) => `${d}d ago`,
+    defaultName: (d, t) => `Stashed on ${d} ${t}`,
+    restoreBtn: "Restore",
+    delConfirm: "Delete?",
+    tabsUnit: "tabs"
+  }
+};
+
 async function getStashableTabs() {
   const tabs = await chrome.tabs.query({ currentWindow: true });
   return tabs.filter((t) => t.url && STASHABLE.test(t.url));
@@ -19,18 +56,25 @@ async function saveSessions(sessions) {
 
 function defaultName() {
   const d = new Date();
-  const date = d.toLocaleDateString("th-TH", { day: "numeric", month: "short" });
-  const time = d.toLocaleTimeString("th-TH", { hour: "2-digit", minute: "2-digit" });
-  return `เก็บเมื่อ ${date} ${time}`;
+  if (currentLang === "th") {
+    const date = d.toLocaleDateString("th-TH", { day: "numeric", month: "short" });
+    const time = d.toLocaleTimeString("th-TH", { hour: "2-digit", minute: "2-digit" });
+    return TRANSLATIONS.th.defaultName(date, time);
+  } else {
+    const date = d.toLocaleDateString("en-US", { day: "numeric", month: "short" });
+    const time = d.toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit", hour12: false });
+    return TRANSLATIONS.en.defaultName(date, time);
+  }
 }
 
 function timeAgo(ts) {
+  const t = TRANSLATIONS[currentLang];
   const mins = Math.floor((Date.now() - ts) / 60000);
-  if (mins < 1) return "เมื่อครู่";
-  if (mins < 60) return `${mins} นาทีที่แล้ว`;
+  if (mins < 1) return t.timeJustNow;
+  if (mins < 60) return t.timeMinAgo(mins);
   const hrs = Math.floor(mins / 60);
-  if (hrs < 24) return `${hrs} ชม.ที่แล้ว`;
-  return `${Math.floor(hrs / 24)} วันที่แล้ว`;
+  if (hrs < 24) return t.timeHourAgo(hrs);
+  return t.timeDayAgo(Math.floor(hrs / 24));
 }
 
 async function stash() {
@@ -70,16 +114,29 @@ async function remove(id) {
 }
 
 async function render() {
+  const t = TRANSLATIONS[currentLang];
+
+  // Update static UI texts
+  $("name").placeholder = t.placeholder;
+  document.querySelector("h2").textContent = t.savedSessions;
+
   const tabs = await getStashableTabs();
-  $("tab-count").textContent = `หน้าต่างนี้มี ${tabs.length} แท็บที่เก็บได้`;
-  $("stash-btn").disabled = tabs.length === 0;
+  $("tab-count").textContent = t.tabCount(tabs.length);
+  
+  if (tabs.length === 0) {
+    $("stash-btn").textContent = t.stashBtnEmpty;
+    $("stash-btn").disabled = true;
+  } else {
+    $("stash-btn").textContent = t.stashBtn;
+    $("stash-btn").disabled = false;
+  }
 
   const sessions = await loadSessions();
   const box = $("sessions");
   box.innerHTML = "";
 
   if (sessions.length === 0) {
-    box.innerHTML = '<div class="empty">ยังไม่มีเซสชันที่เก็บไว้</div>';
+    box.innerHTML = `<div class="empty">${t.emptySessions}</div>`;
     return;
   }
 
@@ -92,11 +149,11 @@ async function render() {
     const title = document.createElement("b");
     title.textContent = s.name;
     const meta = document.createElement("span");
-    meta.textContent = `${s.tabs.length} แท็บ · ${timeAgo(s.createdAt)}`;
+    meta.textContent = `${s.tabs.length} ${t.tabsUnit} · ${timeAgo(s.createdAt)}`;
     info.append(title, meta);
 
     const openBtn = document.createElement("button");
-    openBtn.textContent = "เปิดคืน";
+    openBtn.textContent = t.restoreBtn;
     openBtn.addEventListener("click", () => restore(s.id));
 
     const delBtn = document.createElement("button");
@@ -107,7 +164,7 @@ async function render() {
         remove(s.id);
       } else {
         delBtn.classList.add("confirm");
-        delBtn.textContent = "ลบ?";
+        delBtn.textContent = t.delConfirm;
         setTimeout(() => {
           delBtn.classList.remove("confirm");
           delBtn.textContent = "✕";
@@ -120,9 +177,25 @@ async function render() {
   }
 }
 
+// Language handler
+async function initLang() {
+  const res = await chrome.storage.local.get("lang");
+  currentLang = res.lang || "th";
+  $("lang-select").value = currentLang;
+
+  $("lang-select").addEventListener("change", async (e) => {
+    currentLang = e.target.value;
+    await chrome.storage.local.set({ lang: currentLang });
+    render();
+  });
+}
+
 $("stash-btn").addEventListener("click", stash);
 $("name").addEventListener("keydown", (e) => {
   if (e.key === "Enter") stash();
 });
 
-render();
+(async () => {
+  await initLang();
+  render();
+})();

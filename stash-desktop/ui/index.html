@@ -254,13 +254,16 @@
   .modal-bg.show { display: grid; }
   .modal {
     background: var(--card); border: 1px solid var(--border); border-radius: 16px;
-    width: 360px; padding: 28px;
+    width: 380px; padding: 28px;
     box-shadow: 0 12px 48px rgba(0,0,0,0.5);
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
   }
-  .modal-title { font-size: 16px; font-weight: 600; margin-bottom: 22px; }
+  .modal-title { font-size: 16px; font-weight: 600; }
   .modal-row {
     display: flex; justify-content: space-between; align-items: center;
-    padding: 14px 0; border-bottom: 1px solid var(--border);
+    padding: 10px 0; border-bottom: 1px solid var(--border);
   }
   .modal-row:last-of-type { border-bottom: none; }
   .modal-row label { font-size: 13px; color: var(--text); }
@@ -282,11 +285,19 @@
   }
 
   .btn-modal-close {
-    width: 100%; margin-top: 24px; background: var(--border); border: 1px solid var(--border-hover);
+    width: 100%; background: var(--border); border: 1px solid var(--border-hover);
     color: var(--text); padding: 10px; border-radius: 8px; cursor: pointer;
     font-size: 12px; font-weight: 500; transition: all 0.15s ease;
+    margin-top: 10px;
   }
   .btn-modal-close:hover { background: var(--border-hover); }
+
+  select {
+    background: var(--bg); border: 1px solid var(--border); color: var(--text);
+    border-radius: 6px; padding: 6px 12px; font-size: 13px; cursor: pointer;
+    outline: none; font-family: inherit; transition: border-color 0.2s;
+  }
+  select:focus { border-color: var(--border-hover); }
 
   /* ── Toast ── */
   #toast {
@@ -306,8 +317,8 @@
   <header>
     <div class="logo">S</div>
     <div class="brand">
-      <h1>Stash</h1>
-      <span class="sub">เก็บแอปไว้ก่อน เปิดคืนทีหลัง</span>
+      <h1 id="app-title">Stash</h1>
+      <span class="sub" id="app-subtitle">เก็บแอปไว้ก่อน เปิดคืนทีหลัง</span>
     </div>
     <div class="spacer"></div>
     <button class="icon-btn" id="open-settings">⚙</button>
@@ -317,7 +328,7 @@
     <!-- Open apps section -->
     <section>
       <div class="section-header">
-        <span class="section-title">แอปที่เปิดอยู่ตอนนี้</span>
+        <span class="section-title" id="sec-open-apps">แอปที่เปิดอยู่ตอนนี้</span>
         <div class="section-links">
           <span id="sel-all">เลือกทั้งหมด</span>
           <span id="sel-none">ไม่เลือกเลย</span>
@@ -325,7 +336,7 @@
       </div>
       <div class="card">
         <div class="app-list" id="app-list">
-          <div class="empty">กำลังแสกนหาแอป...</div>
+          <div class="empty" id="scanning-txt">กำลังแสกนหาแอป...</div>
         </div>
         <div class="card-actions">
           <input type="text" id="name" placeholder="ตั้งชื่อเซสชัน (ไม่บังคับ)" maxlength="60" />
@@ -337,10 +348,10 @@
     <!-- Sessions section -->
     <section>
       <div class="section-header">
-        <span class="section-title">เซสชันที่เก็บไว้</span>
+        <span class="section-title" id="sec-saved-sessions">เซสชันที่เก็บไว้</span>
       </div>
       <div class="sessions" id="sessions">
-        <div class="empty">ยังไม่มีเซสชันที่เก็บไว้</div>
+        <div class="empty" id="empty-sessions-txt">ยังไม่มีเซสชันที่เก็บไว้</div>
       </div>
     </section>
   </div>
@@ -348,14 +359,26 @@
   <!-- Settings -->
   <div class="modal-bg" id="settings-modal">
     <div class="modal">
-      <div class="modal-title">ตั้งค่า</div>
+      <div class="modal-title" id="settings-title">ตั้งค่า</div>
+      
+      <!-- Autostart -->
       <div class="modal-row">
-        <label>เปิดพร้อมเปิดเครื่อง</label>
+        <label id="lbl-autostart">เปิดพร้อมเปิดเครื่อง</label>
         <label class="toggle">
           <input type="checkbox" id="autostart-toggle">
           <span class="toggle-track"></span>
         </label>
       </div>
+
+      <!-- Language Selection -->
+      <div class="modal-row">
+        <label id="lbl-lang">ภาษา / Language</label>
+        <select id="lang-select">
+          <option value="th">ภาษาไทย (TH)</option>
+          <option value="en">English (EN)</option>
+        </select>
+      </div>
+
       <button class="btn-modal-close" id="close-settings">ปิด</button>
     </div>
   </div>
@@ -368,8 +391,82 @@
 
   let openApps = [];
   let sessions = [];
+  let currentLang = localStorage.getItem("desktop-lang") || "th";
+
+  const TRANSLATIONS = {
+    th: {
+      subtitle: "เก็บแอปไว้ก่อน เปิดคืนทีหลัง",
+      secOpenApps: "แอปที่เปิดอยู่ตอนนี้",
+      selAll: "เลือกทั้งหมด",
+      selNone: "ไม่เลือกเลย",
+      scanning: "กำลังแสกนหาแอป...",
+      emptyApps: "ไม่มีแอปอื่นที่เปิดอยู่",
+      scanError: (e) => `แสกนผิดพลาด: ${e}`,
+      placeholder: "ตั้งชื่อเซสชัน (ไม่บังคับ)",
+      stashBtnEmpty: "📥 เลือกแอปที่ต้องการเก็บ",
+      stashBtnActive: (n) => `📥 เก็บ ${n} แอปที่เลือก แล้วปิด`,
+      secSavedSessions: "เซสชันที่เก็บไว้",
+      emptySessions: "ยังไม่มีเซสชันที่เก็บไว้",
+      settingsTitle: "ตั้งค่า",
+      lblAutostart: "เปิดพร้อมเปิดเครื่อง",
+      lblLang: "ภาษา / Language",
+      btnClose: "ปิด",
+      toastRestore: "เปิดแอปทั้งหมดแล้ว",
+      toastCloseBack: "ปิดแอปในเซสชันแล้ว",
+      toastDeleted: "ลบเซสชันแล้ว",
+      toastStashing: "กำลังเก็บและปิดแอป...",
+      toastSaved: "บันทึกแล้ว",
+      toastError: (e) => `ผิดพลาด: ${e}`,
+      btnRestore: "เปิดคืน",
+      btnCloseAgain: "ปิดคืน",
+      confirmDelete: "ลบ?",
+      timeJustNow: "เมื่อครู่",
+      timeMinAgo: (m) => `${m} นาทีที่แล้ว`,
+      timeHourAgo: (h) => `${h} ชม.ที่แล้ว`,
+      timeDayAgo: (d) => `${d} วันที่แล้ว`,
+      defaultName: (d, t) => `เซสชันวันที่ ${d} เวลา ${t}`,
+      unitApps: "แอป"
+    },
+    en: {
+      subtitle: "Stash active apps, restore later",
+      secOpenApps: "Active Applications",
+      selAll: "Select All",
+      selNone: "Deselect All",
+      scanning: "Scanning for active apps...",
+      emptyApps: "No other active applications",
+      scanError: (e) => `Scan error: ${e}`,
+      placeholder: "Session name (optional)",
+      stashBtnEmpty: "📥 Select apps to stash",
+      stashBtnActive: (n) => `📥 Stash ${n} selected apps and close`,
+      secSavedSessions: "Saved Sessions",
+      emptySessions: "No saved sessions",
+      settingsTitle: "Settings",
+      lblAutostart: "Start with Windows/macOS",
+      lblLang: "ภาษา / Language",
+      btnClose: "Close",
+      toastRestore: "All apps restored",
+      toastCloseBack: "Stashed apps closed again",
+      toastDeleted: "Session deleted",
+      toastStashing: "Stashing and closing apps...",
+      toastSaved: "Saved",
+      toastError: (e) => `Error: ${e}`,
+      btnRestore: "Restore",
+      btnCloseAgain: "Close back",
+      confirmDelete: "Delete?",
+      timeJustNow: "just now",
+      timeMinAgo: (m) => `${m}m ago`,
+      timeHourAgo: (h) => `${h}h ago`,
+      timeDayAgo: (d) => `${d}d ago`,
+      defaultName: (d, t) => `Session on ${d} at ${t}`,
+      unitApps: "apps"
+    }
+  };
 
   /* ── helpers ── */
+  function getT() {
+    return TRANSLATIONS[currentLang];
+  }
+
   function toast(msg, err = false) {
     const t = $("toast");
     t.textContent = msg;
@@ -380,18 +477,27 @@
   }
 
   function timeAgo(ts) {
+    const t = getT();
     const m = Math.floor((Date.now() - ts) / 60000);
-    if (m < 1) return "เมื่อครู่";
-    if (m < 60) return `${m} นาทีที่แล้ว`;
+    if (m < 1) return t.timeJustNow;
+    if (m < 60) return t.timeMinAgo(m);
     const h = Math.floor(m / 60);
-    if (h < 24) return `${h} ชม.ที่แล้ว`;
-    return `${Math.floor(h / 24)} วันที่แล้ว`;
+    if (h < 24) return t.timeHourAgo(h);
+    return t.timeDayAgo(Math.floor(h / 24));
   }
 
   function defaultName() {
     const d = new Date();
-    return d.toLocaleDateString("th-TH", { day: "numeric", month: "short" })
-      + " " + d.toLocaleTimeString("th-TH", { hour: "2-digit", minute: "2-digit" });
+    const t = getT();
+    if (currentLang === "th") {
+      const date = d.toLocaleDateString("th-TH", { day: "numeric", month: "short" });
+      const time = d.toLocaleTimeString("th-TH", { hour: "2-digit", minute: "2-digit" });
+      return t.defaultName(date, time);
+    } else {
+      const date = d.toLocaleDateString("en-US", { day: "numeric", month: "short" });
+      const time = d.toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit", hour12: false });
+      return t.defaultName(date, time);
+    }
   }
 
   /* ── open-apps scanning ── */
@@ -405,7 +511,7 @@
       }));
       renderApps();
     } catch (e) {
-      $("app-list").innerHTML = `<div class="empty" style="color:var(--danger)">แสกนผิดพลาด: ${e}</div>`;
+      $("app-list").innerHTML = `<div class="empty" style="color:var(--danger)">${getT().scanError(e)}</div>`;
     }
   }
 
@@ -413,7 +519,7 @@
     const list = $("app-list");
     list.innerHTML = "";
     if (openApps.length === 0) {
-      list.innerHTML = '<div class="empty">ไม่มีแอปอื่นที่เปิดอยู่</div>';
+      list.innerHTML = `<div class="empty">${getT().emptyApps}</div>`;
       $("stash-btn").disabled = true;
       updateBtn();
       return;
@@ -475,8 +581,8 @@
     const btn = $("stash-btn");
     btn.disabled = n === 0;
     btn.textContent = n === 0
-      ? "📥 เลือกแอปที่ต้องการเก็บ"
-      : `📥 เก็บ ${n} แอปที่เลือก แล้วปิด`;
+      ? getT().stashBtnEmpty
+      : getT().stashBtnActive(n);
   }
 
   /* ── sessions ── */
@@ -485,16 +591,18 @@
       const cfg = await invoke("get_config_cmd");
       sessions = cfg.sessions || [];
       $("autostart-toggle").checked = !!cfg.autostart;
+      applyLanguage();
       renderSessions();
       await scan();
     } catch (e) { console.error(e); }
   }
 
   function renderSessions() {
+    const t = getT();
     const box = $("sessions");
     box.innerHTML = "";
     if (sessions.length === 0) {
-      box.innerHTML = '<div class="empty">ยังไม่มีเซสชันที่เก็บไว้</div>';
+      box.innerHTML = `<div class="empty">${t.emptySessions}</div>`;
       return;
     }
     sessions.forEach(s => {
@@ -509,7 +617,7 @@
       const title = document.createElement("b");
       title.textContent = s.name;
       const meta = document.createElement("span");
-      meta.textContent = `${s.apps.length} แอป · ${timeAgo(s.createdAt)}`;
+      meta.textContent = `${s.apps.length} ${t.unitApps} · ${timeAgo(s.createdAt)}`;
       info.append(title, meta);
 
       const btns = document.createElement("div");
@@ -518,20 +626,20 @@
       // เปิดคืน
       const openBtn = document.createElement("button");
       openBtn.className = "btn-ghost";
-      openBtn.textContent = "เปิดคืน";
+      openBtn.textContent = t.btnRestore;
       openBtn.addEventListener("click", async () => {
         await invoke("restore_session_cmd", { id: s.id });
-        toast("เปิดแอปทั้งหมดแล้ว");
+        toast(t.toastRestore);
         setTimeout(scan, 1500);
       });
 
       // ปิดคืน (re-close)
       const closeBtn = document.createElement("button");
       closeBtn.className = "btn-ghost btn-close-again";
-      closeBtn.textContent = "ปิดคืน";
+      closeBtn.textContent = t.btnCloseAgain;
       closeBtn.addEventListener("click", async () => {
         await invoke("close_session_apps_cmd", { id: s.id });
-        toast("ปิดแอปในเซสชันแล้ว");
+        toast(t.toastCloseBack);
         setTimeout(scan, 800);
       });
 
@@ -542,11 +650,11 @@
       delBtn.addEventListener("click", async () => {
         if (delBtn.classList.contains("confirm")) {
           await invoke("delete_session_cmd", { id: s.id });
-          toast("ลบเซสชันแล้ว");
+          toast(t.toastDeleted);
           refresh();
         } else {
           delBtn.classList.add("confirm");
-          delBtn.textContent = "ลบ?";
+          delBtn.textContent = t.confirmDelete;
           setTimeout(() => { delBtn.classList.remove("confirm"); delBtn.textContent = "✕"; }, 2000);
         }
       });
@@ -581,12 +689,39 @@
     const sel = openApps.filter(a => a.selected);
     if (sel.length === 0) return;
     const nm = $("name").value.trim() || defaultName();
-    toast("กำลังเก็บและปิดแอป...");
+    toast(getT().toastStashing);
     try {
       await invoke("stash_apps_cmd", { name: nm, apps: sel });
       $("name").value = "";
       setTimeout(refresh, 800);
-    } catch (e) { toast(`ผิดพลาด: ${e}`, true); }
+    } catch (e) { toast(getT().toastError(e), true); }
+  }
+
+  /* ── Language translation UI application ── */
+  function applyLanguage() {
+    const t = getT();
+    
+    // Header
+    $("app-subtitle").textContent = t.subtitle;
+
+    // Section Titles
+    $("sec-open-apps").textContent = t.secOpenApps;
+    $("sec-saved-sessions").textContent = t.secSavedSessions;
+    
+    // Links
+    $("sel-all").textContent = t.selAll;
+    $("sel-none").textContent = t.selNone;
+
+    // Placeholders
+    $("name").placeholder = t.placeholder;
+
+    // Settings Modal
+    $("settings-title").textContent = t.settingsTitle;
+    $("lbl-autostart").textContent = t.lblAutostart;
+    $("lbl-lang").textContent = t.lblLang;
+    $("close-settings").textContent = t.btnClose;
+
+    updateBtn();
   }
 
   /* ── events ── */
@@ -599,8 +734,18 @@
   $("autostart-toggle").addEventListener("change", async e => {
     try {
       await invoke("set_autostart_cmd", { enabled: e.target.checked });
-      toast("บันทึกแล้ว");
-    } catch (err) { toast(`ผิดพลาด: ${err}`, true); e.target.checked = !e.target.checked; }
+      toast(getT().toastSaved);
+    } catch (err) { toast(getT().toastError(err), true); e.target.checked = !e.target.checked; }
+  });
+
+  // Language selection change
+  $("lang-select").value = currentLang;
+  $("lang-select").addEventListener("change", e => {
+    currentLang = e.target.value;
+    localStorage.setItem("desktop-lang", currentLang);
+    applyLanguage();
+    renderSessions();
+    renderApps();
   });
 
   // Refresh open apps every 5 seconds when window is focused
