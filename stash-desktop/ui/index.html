@@ -1,0 +1,613 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Stash</title>
+<style>
+  :root {
+    --bg: #0e0f11;
+    --surface: #161719;
+    --card: #1c1d20;
+    --border: #27292e;
+    --border-hover: #3a3d44;
+    --text: #eaebed;
+    --text-secondary: #b0b3b8;
+    --muted: #6c6f76;
+    --accent: #f0f0f2;
+    --accent-text: #0e0f11;
+    --danger: #e5484d;
+    --success: #30a46c;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { height: 100%; overflow: hidden; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Leelawadee UI", system-ui, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    display: flex; flex-direction: column;
+    user-select: none;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* ── Header ── */
+  header {
+    display: flex; align-items: center;
+    padding: 22px 28px 16px;
+    flex-shrink: 0;
+    border-bottom: 1px solid var(--border);
+    background: var(--surface);
+  }
+  .logo {
+    width: 38px; height: 38px; border-radius: 8px;
+    background: var(--accent);
+    display: grid; place-items: center;
+    font-weight: 800; font-size: 19px; color: var(--accent-text);
+  }
+  .brand { margin-left: 14px; }
+  h1 { font-size: 18px; font-weight: 600; letter-spacing: -0.3px; }
+  header .sub { font-size: 12px; color: var(--muted); margin-top: 1px; }
+  header .spacer { flex: 1; }
+  
+  .icon-btn {
+    background: none; border: 1px solid var(--border); color: var(--muted);
+    width: 34px; height: 34px; border-radius: 8px;
+    display: grid; place-items: center; cursor: pointer;
+    font-size: 15px; transition: all 0.2s ease;
+  }
+  .icon-btn:hover { background: var(--card); color: var(--text); border-color: var(--border-hover); }
+
+  /* ── Main scroll ── */
+  .content {
+    flex: 1;
+    overflow-y: auto;
+    padding: 24px 28px 28px;
+    display: flex;
+    flex-direction: column;
+    gap: 28px;
+  }
+  .content::-webkit-scrollbar { width: 6px; }
+  .content::-webkit-scrollbar-track { background: transparent; }
+  .content::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+
+  /* ── Section ── */
+  .section-header {
+    display: flex; justify-content: space-between; align-items: center;
+    margin-bottom: 12px;
+  }
+  .section-title {
+    font-size: 12px; color: var(--muted); font-weight: 600;
+    text-transform: uppercase; letter-spacing: 0.8px;
+  }
+  .section-links { display: flex; gap: 14px; }
+  .section-links span {
+    font-size: 12px; color: var(--text-secondary); cursor: pointer;
+    transition: color 0.15s;
+  }
+  .section-links span:hover { color: var(--text); }
+
+  /* ── Stash card ── */
+  .card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 0;
+    overflow: hidden;
+  }
+
+  /* ── App list ── */
+  .app-list { max-height: 260px; overflow-y: auto; }
+  .app-list::-webkit-scrollbar { width: 4px; }
+  .app-list::-webkit-scrollbar-track { background: transparent; }
+  .app-list::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+
+  .app-item {
+    display: flex; align-items: center;
+    padding: 12px 18px;
+    border-bottom: 1px solid var(--border);
+    cursor: pointer;
+    transition: background 0.12s ease;
+  }
+  .app-item:last-child { border-bottom: none; }
+  .app-item:hover { background: rgba(255,255,255,0.025); }
+
+  /* Custom checkbox */
+  .chk-wrap { position: relative; display: flex; align-items: center; margin-right: 14px; }
+  .chk-wrap input { position: absolute; opacity: 0; width: 0; height: 0; }
+  .chk-box {
+    width: 18px; height: 18px;
+    border: 1.5px solid var(--muted);
+    border-radius: 5px;
+    transition: all 0.15s ease;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .chk-wrap input:checked + .chk-box {
+    background: var(--accent); border-color: var(--accent);
+  }
+  .chk-box::after {
+    content: ""; display: none;
+    width: 5px; height: 9px;
+    border: solid var(--accent-text);
+    border-width: 0 2px 2px 0;
+    transform: rotate(45deg) translate(-1px, -1px);
+  }
+  .chk-wrap input:checked + .chk-box::after { display: block; }
+
+  /* App icon */
+  .app-icon {
+    width: 30px; height: 30px; border-radius: 6px;
+    margin-right: 12px; flex-shrink: 0;
+    background: var(--border); display: grid; place-items: center;
+    font-size: 13px; font-weight: 700; color: var(--muted);
+    overflow: hidden;
+  }
+  .app-icon img {
+    width: 100%; height: 100%; object-fit: contain;
+    image-rendering: auto;
+  }
+
+  .app-info { flex: 1; min-width: 0; }
+  .app-name {
+    font-size: 13px; font-weight: 500; color: var(--text);
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    line-height: 1.3;
+  }
+  .app-title {
+    font-size: 11px; color: var(--muted);
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+
+  /* ── Input + button area ── */
+  .card-actions {
+    padding: 14px 18px;
+    display: flex; flex-direction: column; gap: 10px;
+    border-top: 1px solid var(--border);
+    background: var(--surface);
+  }
+
+  input[type="text"] {
+    width: 100%;
+    background: var(--bg); border: 1px solid var(--border); border-radius: 8px;
+    color: var(--text); font-size: 13px; font-family: inherit;
+    padding: 10px 14px; outline: none;
+    transition: border-color 0.2s ease;
+  }
+  input[type="text"]:focus { border-color: var(--border-hover); }
+  input[type="text"]::placeholder { color: var(--muted); }
+
+  .btn-primary {
+    width: 100%;
+    background: var(--accent); color: var(--accent-text);
+    border: none; border-radius: 8px;
+    font-size: 14px; font-weight: 600; font-family: inherit;
+    padding: 12px; cursor: pointer;
+    transition: all 0.15s ease;
+  }
+  .btn-primary:hover { background: #dcdce0; }
+  .btn-primary:active { transform: scale(0.995); }
+  .btn-primary:disabled { opacity: 0.2; cursor: default; transform: none; }
+
+  /* ── Sessions ── */
+  .sessions { display: flex; flex-direction: column; gap: 10px; }
+
+  .session {
+    background: var(--card); border: 1px solid var(--border); border-radius: 14px;
+    padding: 18px;
+    display: flex; flex-direction: column; gap: 14px;
+    transition: border-color 0.2s ease;
+  }
+  .session:hover { border-color: var(--border-hover); }
+
+  .session-top { display: flex; align-items: center; }
+  .session-info { flex: 1; min-width: 0; }
+  .session-info b {
+    display: block; font-size: 14px; font-weight: 500;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    margin-bottom: 3px;
+  }
+  .session-info span { font-size: 12px; color: var(--muted); }
+
+  .session-btns { display: flex; gap: 6px; flex-shrink: 0; }
+
+  .btn-ghost {
+    border: 1px solid var(--border); border-radius: 7px;
+    background: transparent; color: var(--text-secondary);
+    font-size: 12px; font-family: inherit; padding: 7px 14px;
+    cursor: pointer; transition: all 0.15s ease;
+  }
+  .btn-ghost:hover { background: var(--border); color: var(--text); }
+  .btn-close-again { color: var(--danger); }
+  .btn-close-again:hover { background: rgba(229, 72, 77, 0.1); border-color: var(--danger); color: var(--danger); }
+  .btn-del { color: var(--muted); padding: 7px 10px; }
+  .btn-del:hover { background: rgba(229, 72, 77, 0.1); border-color: var(--danger); color: var(--danger); }
+  .btn-del.confirm { background: var(--danger); color: #fff; border-color: var(--danger); }
+
+  /* App preview inside session */
+  .session-apps {
+    display: flex; flex-wrap: wrap; gap: 6px;
+    padding: 10px 12px;
+    background: var(--bg);
+    border-radius: 8px;
+    border: 1px solid var(--border);
+  }
+  .session-app-tag {
+    display: flex; align-items: center; gap: 5px;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 4px 8px;
+    font-size: 11px; color: var(--text-secondary);
+  }
+  .session-app-tag img {
+    width: 14px; height: 14px; border-radius: 3px;
+  }
+
+  .empty { text-align: center; color: var(--muted); font-size: 13px; padding: 32px 0; }
+
+  /* ── Modal ── */
+  .modal-bg {
+    position: fixed; inset: 0;
+    background: rgba(0,0,0,0.7);
+    display: none; place-items: center;
+    z-index: 100;
+  }
+  .modal-bg.show { display: grid; }
+  .modal {
+    background: var(--card); border: 1px solid var(--border); border-radius: 16px;
+    width: 360px; padding: 28px;
+    box-shadow: 0 12px 48px rgba(0,0,0,0.5);
+  }
+  .modal-title { font-size: 16px; font-weight: 600; margin-bottom: 22px; }
+  .modal-row {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 14px 0; border-bottom: 1px solid var(--border);
+  }
+  .modal-row:last-of-type { border-bottom: none; }
+  .modal-row label { font-size: 13px; color: var(--text); }
+  
+  .toggle { position: relative; display: inline-block; width: 40px; height: 22px; }
+  .toggle input { opacity: 0; width: 0; height: 0; }
+  .toggle-track {
+    position: absolute; cursor: pointer; inset: 0;
+    background: #2a2c30; transition: .2s; border-radius: 34px;
+    border: 1px solid var(--border);
+  }
+  .toggle-track:before {
+    position: absolute; content: ""; height: 14px; width: 14px; left: 3px; bottom: 3px;
+    background: var(--muted); transition: .2s; border-radius: 50%;
+  }
+  input:checked + .toggle-track { background: var(--accent); }
+  input:checked + .toggle-track:before {
+    transform: translateX(18px); background: var(--accent-text);
+  }
+
+  .btn-modal-close {
+    width: 100%; margin-top: 24px; background: var(--border); border: 1px solid var(--border-hover);
+    color: var(--text); padding: 10px; border-radius: 8px; cursor: pointer;
+    font-size: 12px; font-weight: 500; transition: all 0.15s ease;
+  }
+  .btn-modal-close:hover { background: var(--border-hover); }
+
+  /* ── Toast ── */
+  #toast {
+    position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%);
+    background: var(--text); color: var(--bg);
+    font-size: 12px; font-weight: 600;
+    padding: 10px 20px; border-radius: 24px;
+    box-shadow: 0 6px 20px rgba(0,0,0,0.35);
+    opacity: 0; transition: opacity 0.2s, bottom 0.2s; pointer-events: none;
+    z-index: 1000;
+  }
+  #toast.show { opacity: 1; bottom: 30px; }
+</style>
+</head>
+<body>
+
+  <header>
+    <div class="logo">S</div>
+    <div class="brand">
+      <h1>Stash</h1>
+      <span class="sub">เก็บแอปไว้ก่อน เปิดคืนทีหลัง</span>
+    </div>
+    <div class="spacer"></div>
+    <button class="icon-btn" id="open-settings">⚙</button>
+  </header>
+
+  <div class="content">
+    <!-- Open apps section -->
+    <section>
+      <div class="section-header">
+        <span class="section-title">แอปที่เปิดอยู่ตอนนี้</span>
+        <div class="section-links">
+          <span id="sel-all">เลือกทั้งหมด</span>
+          <span id="sel-none">ไม่เลือกเลย</span>
+        </div>
+      </div>
+      <div class="card">
+        <div class="app-list" id="app-list">
+          <div class="empty">กำลังแสกนหาแอป...</div>
+        </div>
+        <div class="card-actions">
+          <input type="text" id="name" placeholder="ตั้งชื่อเซสชัน (ไม่บังคับ)" maxlength="60" />
+          <button class="btn-primary" id="stash-btn" disabled>📥 เก็บแอปที่เลือก แล้วปิด</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Sessions section -->
+    <section>
+      <div class="section-header">
+        <span class="section-title">เซสชันที่เก็บไว้</span>
+      </div>
+      <div class="sessions" id="sessions">
+        <div class="empty">ยังไม่มีเซสชันที่เก็บไว้</div>
+      </div>
+    </section>
+  </div>
+
+  <!-- Settings -->
+  <div class="modal-bg" id="settings-modal">
+    <div class="modal">
+      <div class="modal-title">ตั้งค่า</div>
+      <div class="modal-row">
+        <label>เปิดพร้อมเปิดเครื่อง</label>
+        <label class="toggle">
+          <input type="checkbox" id="autostart-toggle">
+          <span class="toggle-track"></span>
+        </label>
+      </div>
+      <button class="btn-modal-close" id="close-settings">ปิด</button>
+    </div>
+  </div>
+
+  <div id="toast"></div>
+
+<script>
+  const { invoke } = window.__TAURI__.core;
+  const $ = id => document.getElementById(id);
+
+  let openApps = [];
+  let sessions = [];
+
+  /* ── helpers ── */
+  function toast(msg, err = false) {
+    const t = $("toast");
+    t.textContent = msg;
+    t.style.background = err ? "var(--danger)" : "var(--text)";
+    t.style.color = err ? "#fff" : "var(--bg)";
+    t.classList.add("show");
+    setTimeout(() => t.classList.remove("show"), 2200);
+  }
+
+  function timeAgo(ts) {
+    const m = Math.floor((Date.now() - ts) / 60000);
+    if (m < 1) return "เมื่อครู่";
+    if (m < 60) return `${m} นาทีที่แล้ว`;
+    const h = Math.floor(m / 60);
+    if (h < 24) return `${h} ชม.ที่แล้ว`;
+    return `${Math.floor(h / 24)} วันที่แล้ว`;
+  }
+
+  function defaultName() {
+    const d = new Date();
+    return d.toLocaleDateString("th-TH", { day: "numeric", month: "short" })
+      + " " + d.toLocaleTimeString("th-TH", { hour: "2-digit", minute: "2-digit" });
+  }
+
+  /* ── open-apps scanning ── */
+  async function scan() {
+    try {
+      const apps = await invoke("get_open_apps_cmd");
+      const prev = new Map(openApps.map(a => [`${a.exePath}:${a.pid}`, a.selected]));
+      openApps = apps.map(a => ({
+        ...a,
+        selected: prev.get(`${a.exePath}:${a.pid}`) ?? true
+      }));
+      renderApps();
+    } catch (e) {
+      $("app-list").innerHTML = `<div class="empty" style="color:var(--danger)">แสกนผิดพลาด: ${e}</div>`;
+    }
+  }
+
+  function renderApps() {
+    const list = $("app-list");
+    list.innerHTML = "";
+    if (openApps.length === 0) {
+      list.innerHTML = '<div class="empty">ไม่มีแอปอื่นที่เปิดอยู่</div>';
+      $("stash-btn").disabled = true;
+      updateBtn();
+      return;
+    }
+    openApps.forEach((app, i) => {
+      const row = document.createElement("div");
+      row.className = "app-item";
+      row.addEventListener("click", e => {
+        if (e.target.tagName === "INPUT") return;
+        const c = row.querySelector("input");
+        c.checked = !c.checked;
+        openApps[i].selected = c.checked;
+        updateBtn();
+      });
+
+      // checkbox
+      const wrap = document.createElement("label");
+      wrap.className = "chk-wrap";
+      const chk = document.createElement("input");
+      chk.type = "checkbox";
+      chk.checked = app.selected;
+      chk.addEventListener("change", () => { openApps[i].selected = chk.checked; updateBtn(); });
+      const box = document.createElement("span");
+      box.className = "chk-box";
+      wrap.append(chk, box);
+
+      // icon
+      const iconEl = document.createElement("div");
+      iconEl.className = "app-icon";
+      if (app.icon) {
+        const img = document.createElement("img");
+        img.src = app.icon;
+        img.alt = app.name;
+        iconEl.appendChild(img);
+      } else {
+        iconEl.textContent = app.name.charAt(0).toUpperCase();
+      }
+
+      // info
+      const info = document.createElement("div");
+      info.className = "app-info";
+      const nm = document.createElement("div");
+      nm.className = "app-name";
+      nm.textContent = app.name.replace(/\.exe$/i, "");
+      const ti = document.createElement("div");
+      ti.className = "app-title";
+      ti.textContent = app.title;
+      ti.title = app.exePath;
+      info.append(nm, ti);
+
+      row.append(wrap, iconEl, info);
+      list.appendChild(row);
+    });
+    updateBtn();
+  }
+
+  function updateBtn() {
+    const n = openApps.filter(a => a.selected).length;
+    const btn = $("stash-btn");
+    btn.disabled = n === 0;
+    btn.textContent = n === 0
+      ? "📥 เลือกแอปที่ต้องการเก็บ"
+      : `📥 เก็บ ${n} แอปที่เลือก แล้วปิด`;
+  }
+
+  /* ── sessions ── */
+  async function refresh() {
+    try {
+      const cfg = await invoke("get_config_cmd");
+      sessions = cfg.sessions || [];
+      $("autostart-toggle").checked = !!cfg.autostart;
+      renderSessions();
+      await scan();
+    } catch (e) { console.error(e); }
+  }
+
+  function renderSessions() {
+    const box = $("sessions");
+    box.innerHTML = "";
+    if (sessions.length === 0) {
+      box.innerHTML = '<div class="empty">ยังไม่มีเซสชันที่เก็บไว้</div>';
+      return;
+    }
+    sessions.forEach(s => {
+      const el = document.createElement("div");
+      el.className = "session";
+
+      // top row
+      const top = document.createElement("div");
+      top.className = "session-top";
+      const info = document.createElement("div");
+      info.className = "session-info";
+      const title = document.createElement("b");
+      title.textContent = s.name;
+      const meta = document.createElement("span");
+      meta.textContent = `${s.apps.length} แอป · ${timeAgo(s.createdAt)}`;
+      info.append(title, meta);
+
+      const btns = document.createElement("div");
+      btns.className = "session-btns";
+
+      // เปิดคืน
+      const openBtn = document.createElement("button");
+      openBtn.className = "btn-ghost";
+      openBtn.textContent = "เปิดคืน";
+      openBtn.addEventListener("click", async () => {
+        await invoke("restore_session_cmd", { id: s.id });
+        toast("เปิดแอปทั้งหมดแล้ว");
+        setTimeout(scan, 1500);
+      });
+
+      // ปิดคืน (re-close)
+      const closeBtn = document.createElement("button");
+      closeBtn.className = "btn-ghost btn-close-again";
+      closeBtn.textContent = "ปิดคืน";
+      closeBtn.addEventListener("click", async () => {
+        await invoke("close_session_apps_cmd", { id: s.id });
+        toast("ปิดแอปในเซสชันแล้ว");
+        setTimeout(scan, 800);
+      });
+
+      // ลบ
+      const delBtn = document.createElement("button");
+      delBtn.className = "btn-ghost btn-del";
+      delBtn.textContent = "✕";
+      delBtn.addEventListener("click", async () => {
+        if (delBtn.classList.contains("confirm")) {
+          await invoke("delete_session_cmd", { id: s.id });
+          toast("ลบเซสชันแล้ว");
+          refresh();
+        } else {
+          delBtn.classList.add("confirm");
+          delBtn.textContent = "ลบ?";
+          setTimeout(() => { delBtn.classList.remove("confirm"); delBtn.textContent = "✕"; }, 2000);
+        }
+      });
+
+      btns.append(openBtn, closeBtn, delBtn);
+      top.append(info, btns);
+      el.appendChild(top);
+
+      // app tags preview
+      const tags = document.createElement("div");
+      tags.className = "session-apps";
+      s.apps.forEach(a => {
+        const tag = document.createElement("span");
+        tag.className = "session-app-tag";
+        if (a.icon) {
+          const img = document.createElement("img");
+          img.src = a.icon;
+          tag.appendChild(img);
+        }
+        const txt = document.createTextNode(a.name.replace(/\.exe$/i, ""));
+        tag.appendChild(txt);
+        tags.appendChild(tag);
+      });
+      el.appendChild(tags);
+
+      box.appendChild(el);
+    });
+  }
+
+  /* ── stash ── */
+  async function stash() {
+    const sel = openApps.filter(a => a.selected);
+    if (sel.length === 0) return;
+    const nm = $("name").value.trim() || defaultName();
+    toast("กำลังเก็บและปิดแอป...");
+    try {
+      await invoke("stash_apps_cmd", { name: nm, apps: sel });
+      $("name").value = "";
+      setTimeout(refresh, 800);
+    } catch (e) { toast(`ผิดพลาด: ${e}`, true); }
+  }
+
+  /* ── events ── */
+  $("stash-btn").addEventListener("click", stash);
+  $("name").addEventListener("keydown", e => { if (e.key === "Enter") stash(); });
+  $("sel-all").addEventListener("click", () => { openApps.forEach(a => a.selected = true); renderApps(); });
+  $("sel-none").addEventListener("click", () => { openApps.forEach(a => a.selected = false); renderApps(); });
+  $("open-settings").addEventListener("click", () => $("settings-modal").classList.add("show"));
+  $("close-settings").addEventListener("click", () => $("settings-modal").classList.remove("show"));
+  $("autostart-toggle").addEventListener("change", async e => {
+    try {
+      await invoke("set_autostart_cmd", { enabled: e.target.checked });
+      toast("บันทึกแล้ว");
+    } catch (err) { toast(`ผิดพลาด: ${err}`, true); e.target.checked = !e.target.checked; }
+  });
+
+  // Refresh open apps every 5 seconds when window is focused
+  window.addEventListener("focus", scan);
+  setInterval(() => { if (document.hasFocus()) scan(); }, 5000);
+
+  refresh();
+</script>
+</body>
+</html>

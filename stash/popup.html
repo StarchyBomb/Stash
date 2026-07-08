@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8" />
+<title>Stash</title>
+<style>
+  :root {
+    --bg: #0d1117;
+    --card: #161b22;
+    --border: #21262d;
+    --text: #e6edf3;
+    --muted: #8b949e;
+    --accent: #a78bfa;
+    --accent2: #7c3aed;
+    --danger: #f85149;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    width: 340px;
+    font-family: "Segoe UI", "Leelawadee UI", system-ui, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    padding: 14px;
+  }
+  header { display: flex; align-items: center; gap: 9px; margin-bottom: 12px; }
+  .logo {
+    width: 32px; height: 32px; border-radius: 8px;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    display: grid; place-items: center;
+    font-weight: 800; font-size: 16px; color: #fff;
+  }
+  h1 { font-size: 16px; }
+  header span { font-size: 11px; color: var(--muted); display: block; }
+
+  input[type="text"] {
+    width: 100%;
+    background: var(--card); border: 1px solid var(--border); border-radius: 8px;
+    color: var(--text); font-size: 13px; font-family: inherit;
+    padding: 8px 10px; margin-bottom: 8px; outline: none;
+  }
+  input[type="text"]:focus { border-color: var(--accent2); }
+
+  #stash-btn {
+    width: 100%;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    color: #fff; border: none; border-radius: 8px;
+    font-size: 14px; font-weight: 700; font-family: inherit;
+    padding: 10px; cursor: pointer;
+    transition: opacity 0.15s;
+  }
+  #stash-btn:hover { opacity: 0.9; }
+  #stash-btn:disabled { opacity: 0.4; cursor: default; }
+
+  h2 {
+    font-size: 11px; color: var(--muted); font-weight: 600;
+    margin: 14px 2px 6px; text-transform: uppercase; letter-spacing: 1px;
+  }
+  .session {
+    background: var(--card); border: 1px solid var(--border); border-radius: 10px;
+    padding: 10px 12px; margin-bottom: 8px;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .session .info { flex: 1; min-width: 0; }
+  .session .info b {
+    display: block; font-size: 13px;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+  .session .info span { font-size: 11px; color: var(--muted); }
+  .session button {
+    border: 1px solid var(--border); border-radius: 7px;
+    background: #21262d; color: var(--text);
+    font-size: 12px; font-family: inherit; padding: 5px 10px;
+    cursor: pointer; flex-shrink: 0;
+  }
+  .session button:hover { border-color: var(--accent2); }
+  .session .del { color: var(--danger); padding: 5px 8px; }
+  .session .del.confirm { background: var(--danger); color: #fff; border-color: var(--danger); }
+  .empty { text-align: center; color: var(--muted); font-size: 12px; padding: 14px 0; }
+</style>
+</head>
+<body>
+  <header>
+    <div class="logo">S</div>
+    <div>
+      <h1>Stash</h1>
+      <span id="tab-count">…</span>
+    </div>
+  </header>
+
+  <input type="text" id="name" placeholder="ตั้งชื่อเซสชัน (ไม่บังคับ)" maxlength="60" />
+  <button id="stash-btn">📥 เก็บแท็บทั้งหมด แล้วปิด</button>
+
+  <h2>เซสชันที่เก็บไว้</h2>
+  <div id="sessions"></div>
+
+  <script src="popup.js"></script>
+</body>
+</html>
