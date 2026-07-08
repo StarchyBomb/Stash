@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "Stash",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "เก็บแท็บทั้งหมดไว้ก่อน กลับมาเปิดทีหลัง — ปุ่มเดียวจบ",
   "permissions": ["tabs", "storage"],
   "action": {
