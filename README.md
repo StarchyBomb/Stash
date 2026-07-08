@@ -1,86 +1,187 @@
-# 📥 Stash — เก็บทุกอย่างตรงหน้า กลับมาทำต่อในคลิกเดียว
+<div align="center">
 
-> **Stash** คือชุดแอปพลิเคชันเพิ่มประสิทธิภาพ (Productivity Utilities) ที่ช่วยรวบรวมโปรแกรมเดสก์ท็อปและแท็บบราวเซอร์ของคุณลงเซสชันทันที เพื่อให้คุณสลับโฟกัสหน้าจอได้อย่างสะอาดสะอ้าน และเปิดคืนทั้งหมดกลับขึ้นมาใหม่ได้ภายในคลิกเดียวเมื่อพร้อม
+# 📥 Stash
 
-<p align="center">
-  <a href="#-browser-extension">Browser Extension</a> •
-  <a href="#-desktop-app">Desktop App</a> •
-  <a href="#-use-cases">Use Cases</a> •
-  <a href="#-pricing">Pricing Plans</a> •
-  <a href="#-smartscreen-warning">SmartScreen Bypass</a>
-</p>
+**Save everything on your screen. Restore it all in one click.**
+
+เก็บทุกอย่างตรงหน้า กลับมาทำต่อในคลิกเดียว
+
+[![Version](https://img.shields.io/badge/version-0.1.0-7c3aed?style=flat-square)](https://github.com/StarchyBomb/Stash/releases)
+[![Platform](https://img.shields.io/badge/platform-Windows%20%7C%20macOS-0d1117?style=flat-square)](https://github.com/StarchyBomb/Stash)
+[![License](https://img.shields.io/badge/license-Free-30a46c?style=flat-square)](https://github.com/StarchyBomb/Stash)
+[![Language](https://img.shields.io/badge/language-EN%20%7C%20TH-a78bfa?style=flat-square)](https://github.com/StarchyBomb/Stash)
+
+[Browser Extension](#-browser-extension) •
+[Desktop App](#%EF%B8%8F-desktop-app) •
+[Use Cases](#-use-cases) •
+[How to Update](#-how-to-update) •
+[SmartScreen Bypass](#%EF%B8%8F-smartscreen-warning-windows)
+
+</div>
 
 ---
 
-## 🌐 Browser Extension (Chrome / Edge)
+## 🌐 Browser Extension
+
+Stash all your browser tabs from the current window into a named session, then restore them later — right back in the same window.
+
 เก็บแท็บเบราว์เซอร์ทั้งหมดในหน้าต่างปัจจุบันเป็นเซสชัน แล้วเปิดคืนทีหลังในหน้าต่างเดิม
 
-### ฟีเจอร์หลัก
-- **เปิดคืนในบราวเซอร์เดิม** — คืนค่าแท็บทั้งหมดในเบราว์เซอร์ปัจจุบัน ไม่แยกตัวหน้าต่างใหม่
-- **ระบบลบปลอดภัย** — ป้องกันการกดลบพลาดโดยต้องกดยืนยันสองครั้ง
-- **ทำงาน Local 100%** — บันทึกข้อมูลบนเบราว์เซอร์เครื่องของคุณ ไม่มีคลาวด์ ปลอดภัยสูงสุด
+### Features
 
-### การติดตั้ง
-1. เปิดหน้าตั้งค่าขยายส่วนเสริม `chrome://extensions` หรือ `edge://extensions`
-2. เปิดโหมดนักพัฒนา **(Developer mode)** ที่มุมขวาบน
-3. กดปุ่ม **Load unpacked** (โหลดส่วนขยายที่คลายซิปแล้ว) -> เลือกโฟลเดอร์ `stash/` ในที่เก็บโค้ดนี้
+| Feature | Description |
+|---------|-------------|
+| **One-click stash** | Save all tabs and close them instantly. Restore them all at once later. |
+| **Restore in same window** | Tabs reopen in your current browser window — not a new one. |
+| **Safe delete** | Two-step confirmation prevents accidental session deletion. |
+| **100% Local** | All data stays in your browser's local storage. No cloud, no accounts. |
+| **Bilingual** | Switch between English and Thai with a single dropdown. |
+
+### Installation
+
+> Works on **Chrome**, **Edge**, **Brave**, and any Chromium-based browser.
+
+1. Open your browser's extension page:
+   - Chrome: `chrome://extensions`
+   - Edge: `edge://extensions`
+2. Enable **Developer mode** (toggle in the top-right corner)
+3. Click **Load unpacked** → select the `stash/` folder from this repository
 
 ---
 
-## 🖥️ Desktop App (Windows / macOS)
+## 🖥️ Desktop App
+
+Take control of your entire desktop. Select which applications to stash, close them, and bring them all back with a single click.
+
 ควบคุมโปรแกรมทั้งหมดในระบบเดสก์ท็อป เลือกเก็บ จัดหมวดหมู่ และเปิดกลับคืนได้อย่างแม่นยำ
 
-### ฟีเจอร์หลัก
-- **เลือกเก็บแบบเจาะจง** — มีระบบ Checkbox ในการคัดเลือกว่าจะเซฟและปิดโปรแกรมตัวใดบ้าง
-- **แสดงไอคอนของแอปจริง** — ดึงและแสดงไอคอนจากตัวเครื่องมาพรีวิวในลิสต์
-- **เปิดคืน / ปิดคืน (Re-Close)** — เปิดคืนกลุ่มโปรแกรมทั้งหมด และสามารถกด "ปิดคืน" เพื่อพับปิดแอปในเซสชันนั้นซ้ำได้ทันที
-- **Minimalist Dark Theme** — อินเทอร์เฟซโทนเทาดำตัดขาวออฟไวท์ สบายตา สไตล์พรีเมียม
-- **Autostart** — เปิดใช้งานพร้อมเปิดเครื่องคอมพิวเตอร์ผ่านการตั้งค่าในระบบ
+### Features
+
+| Feature | Description |
+|---------|-------------|
+| **Selective stash** | Checkbox system lets you pick exactly which apps to save and close. |
+| **Real app icons** | Extracts and displays actual application icons from your system. |
+| **Restore / Re-close** | Restore a session, then "close back" to re-stash those same apps instantly. |
+| **Minimalist dark theme** | Dark gray and off-white interface — clean, modern, premium feel. |
+| **Autostart** | Launch Stash automatically when your computer starts up. |
+| **Bilingual** | Switch between English and Thai in the Settings panel. |
+
+### Download
+
+Download the latest installer from the [Releases](https://github.com/StarchyBomb/Stash/releases) page:
+
+| Platform | File | Note |
+|----------|------|------|
+| Windows | `Stash_x.x.x_x64-setup.exe` | NSIS installer (recommended) |
+| macOS | Coming soon | — |
+
+> ⚠️ **First launch on Windows**: You may see a SmartScreen warning. See [SmartScreen Bypass](#%EF%B8%8F-smartscreen-warning-windows) below.
 
 ---
 
-## 💡 Use Cases (กรณีการใช้งานจริง)
+## 💡 Use Cases
 
-### 1. สลับบริบทการทำงานอย่างรวดเร็ว (Context Switching)
-ระหว่างเขียนโค้ดและทดสอบระบบ คุณมีโปรแกรมเปิดไว้ทั้ง VS Code, Discord, Docker Desktop และ Chrome อยู่ดี ๆ มีเคสเร่งด่วนที่ต้องสลับไปประชุมหรือทำเรื่องอื่น? กด Stash เพื่อแช่แข็งเซสชันงานเก็บลงประวัติทันที หน้าจอจะสะอาดไร้สิ่งรบกวนสมาธิ เมื่อพร้อมกลับมาทำงานก็เพียงกด "เปิดคืน" เพื่อเอาทุกแอปกลับมารวดเดียว
+### 1. Context Switching — สลับบริบทการทำงาน
+You're deep in a coding session with VS Code, Docker, Chrome DevTools, and Slack open. An urgent meeting pops up. Hit **Stash** to freeze everything, clear your screen, and focus. When the meeting ends, hit **Restore** — everything comes back exactly as you left it.
 
-### 2. กิจวัตรเช้าวันใหม่ (Daily Routine Workspaces)
-ตั้งกลุ่มเซสชัน "เช็คงานยามเช้า" ประกอบด้วยหน้าเว็บเมลโปรด, โปรแกรม Slack, Notion, Spotify และหน้าข่าวเด่น กดเปิดครั้งเดียวช่วงเช้าเพื่อพร้อมรับข้อมูลโดยไม่ต้องไล่เคาะเปิดทีละตัวทุกวัน
+### 2. Daily Routine Workspaces — กิจวัตรเช้าวันใหม่
+Create a "Morning Check" session with your email, Slack, Notion, Spotify, and news tabs. One click every morning to open your entire workspace — no more launching apps one by one.
 
-### 3. ประหยัดทรัพยากรแรม (RAM Optimization)
-เบราว์เซอร์และแอปพื้นหลังมักกินแรมคอมพิวเตอร์อย่างมหาศาล Stash ช่วยให้คุณ "เคลียร์" พื้นที่แรมได้ชั่วคราวอย่างชาญฉลาดโดยปิดแอปที่ยังไม่ใช้อย่างปลอดภัยทันที
-
----
-
-## 💳 Pricing Plans (แผนบริการสมาชิก)
-
-Stash ได้รับการออกแบบมาเพื่อการทำงานที่มีประสิทธิภาพอย่างยั่งยืน โดยแบ่งระดับการบริการดังนี้:
-
-* **Free Trial (ทดลองฟรี 14 วัน)**: เก็บรักษาสูงสุด 3 เซสชันพร้อมกัน, เลือกเก็บแอปได้อิสระ
-* **Stash Pro (รายเดือน — ฿99/เดือน)**: บันทึกเซสชันได้ไม่จำกัด, ความสามารถในการดึงไอคอนความละเอียดสูง, เปิดแอปพร้อมสตาร์ทเครื่อง (Autostart)
-* **Stash Lifetime (ซื้อขาด — ฿990 จ่ายครั้งเดียว)**: ปลดล็อกฟีเจอร์พรีเมียมทั้งหมดถาวร อัปเกรดเวอร์ชันหลักฟรีตลอดชีพ
+### 3. RAM Optimization — ประหยัดทรัพยากรแรม
+Browsers and background apps consume massive amounts of RAM. Stash lets you safely close everything you don't need right now, free up memory, and restore them when you're ready.
 
 ---
 
-## 🛡️ วิธีข้ามหน้าเตือนความปลอดภัย (SmartScreen Bypass)
+## 🔄 How to Update
 
-เนื่องจากตัวติดตั้งโปรแกรมแจกจ่ายอิสระ (Unsigned Executable) เมื่อคุณดาวน์โหลดและเปิดไฟล์ติดตั้งครั้งแรกบน Windows ระบบ Windows SmartScreen หรือ Windows Defender อาจขึ้นแจ้งเตือนบล็อกแอป (Warning) เพื่อความปลอดภัย 
+### Desktop App
 
-โปรแกรมนี้ปลอดภัย 100% และแสดงซอร์สโค้ดในพื้นที่นี้ทั้งหมด คุณสามารถกดยืนยันใช้งานได้ตามขั้นตอนดังนี้:
+When a new version is available on the [Releases](https://github.com/StarchyBomb/Stash/releases) page:
 
-1. ดับเบิ้ลคลิกเพื่อเปิดไฟล์ติดตั้ง `.msi` หรือ `.exe`
-2. เมื่อหน้าต่างสีน้ำเงินแจ้งเตือนความปลอดภัยแสดงขึ้น ให้คลิกที่ลิ้งก์ **ข้อมูลเพิ่มเติม (More Info)** ใต้คำบรรยาย
-3. ปุ่มยืนยันพิเศษจะปรากฏขึ้น ให้คลิกที่ปุ่ม **รันต่อไป (Run anyway)** เพื่ออนุญาตให้เริ่มการติดตั้งและใช้งานตัวโปรแกรม
+1. **Download** the latest `.exe` installer from the Releases page
+2. **Run the installer** — it will automatically replace the old version
+3. **Launch Stash** — your saved sessions and settings are preserved
+
+> 💡 **Your data is safe.** Sessions are stored in a separate config file (`stash-config.json` in your user data directory), not inside the application folder. Updating or reinstalling the app will **not** delete your saved sessions.
+
+เมื่อมีเวอร์ชันใหม่ในหน้า Releases:
+1. ดาวน์โหลดไฟล์ `.exe` ตัวใหม่
+2. รันตัวติดตั้ง — จะลงทับเวอร์ชันเดิมอัตโนมัติ
+3. เปิดแอป Stash — เซสชันและการตั้งค่าเดิมทั้งหมดยังอยู่ครบ
 
 ---
 
-## 🛠️ ขั้นตอนการพัฒนา (Development)
+### Browser Extension
 
-หากต้องการดัดแปลงซอร์สโค้ดและพัฒนาแอปในเครื่องของคุณ:
+When the extension code is updated on this repository:
 
-```powershell
+**Option A — Re-download the ZIP** (easiest)
+1. Download the latest source code ZIP from the [Releases](https://github.com/StarchyBomb/Stash/releases) page or the repository
+2. Extract and replace the old `stash/` folder
+3. Go to `chrome://extensions` → click the **reload** button (🔄) on the Stash extension card
+
+**Option B — Git pull** (if you cloned the repo)
+```bash
+cd path/to/Stash
+git pull origin main
+```
+Then go to `chrome://extensions` → click the **reload** button (🔄) on the Stash extension card.
+
+> 💡 **Your data is safe.** Saved sessions are stored in Chrome's local storage, not in the extension files. Reloading or updating the extension will **not** delete your saved sessions.
+
+เมื่อโค้ดของ Extension ได้รับการอัพเดทในรีโพ:
+- **วิธี A**: ดาวน์โหลด ZIP ใหม่ → แตกไฟล์ทับ `stash/` เดิม → ไปที่ `chrome://extensions` กดปุ่มรีโหลด 🔄
+- **วิธี B**: ถ้า clone repo ไว้ ให้ `git pull` แล้วกดปุ่มรีโหลดที่หน้า extensions
+
+---
+
+## 🛡️ SmartScreen Warning (Windows)
+
+Since the installer is not code-signed, Windows SmartScreen may show a security warning on first launch. **The app is completely safe** — all source code is open and available in this repository.
+
+To bypass the warning:
+
+1. Double-click the `.exe` installer
+2. When the blue SmartScreen window appears, click **"More info"**
+3. Click **"Run anyway"** to proceed with the installation
+
+เนื่องจากตัวติดตั้งยังไม่ได้ลงนามดิจิทัล Windows SmartScreen อาจขึ้นแจ้งเตือน:
+1. คลิก **"ข้อมูลเพิ่มเติม (More Info)"**
+2. คลิก **"รันต่อไป (Run anyway)"**
+
+---
+
+## 🛠️ Development
+
+To build and develop Stash locally:
+
+```bash
+# Clone the repository
+git clone https://github.com/StarchyBomb/Stash.git
+cd Stash
+
+# Desktop App
 cd stash-desktop
 npm install
-npm run dev        # เปิดรันโหมดพัฒนา
-npm run build      # บิลด์ตัวติดตั้งสำเร็จรูป (.exe และ .msi)
+npm run dev          # Start development mode
+npm run build        # Build production installer (.exe)
+
+# Browser Extension
+# Load the stash/ folder as an unpacked extension in your browser
 ```
+
+### Tech Stack
+
+| Component | Technology |
+|-----------|-----------|
+| Desktop App | [Tauri v2](https://tauri.app/) + Rust + HTML/JS |
+| Browser Extension | Chrome Manifest V3 + Vanilla JS |
+| Landing Page | HTML + CSS (hosted on Vercel) |
+
+---
+
+<div align="center">
+
+**Made with ❤️ by [StarchyBomb](https://github.com/StarchyBomb)**
+
+</div>
