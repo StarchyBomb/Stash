@@ -169,32 +169,109 @@
   .dot-green { background: #27c93f; }
   .window-title { margin-left: 14px; font-size: 11px; color: var(--muted); font-weight: 500; }
   
-  .mockup-body {
-    padding: 28px;
-    background: #07080a;
-    display: flex; gap: 24px;
+  /* ── Interactive Demo ── */
+  .demo-caption { text-align: center; margin-bottom: 22px; }
+  .demo-badge {
+    display: inline-flex; align-items: center; gap: 7px;
+    background: var(--surface); border: 1px solid var(--border);
+    color: var(--success); font-size: 11px; font-weight: 700;
+    text-transform: uppercase; letter-spacing: 1px;
+    padding: 6px 14px; border-radius: 30px; margin-bottom: 12px;
   }
-  .mockup-sidebar {
-    width: 200px; border-right: 1px solid var(--border);
-    padding-right: 20px; display: flex; flex-direction: column; gap: 10px;
+  .demo-caption p { color: var(--text-secondary); font-size: 14px; max-width: 580px; margin: 0 auto; }
+
+  .demo-body { display: flex; background: #07080a; min-height: 380px; }
+
+  /* Left: simulated macOS desktop */
+  .demo-desktop {
+    flex: 1.5; position: relative; padding: 16px 18px;
+    background: radial-gradient(120% 80% at 50% -10%, rgba(255,255,255,0.05), transparent 60%), #0a0b0e;
+    border-right: 1px solid var(--border);
+    display: flex; flex-direction: column;
   }
-  .sidebar-item {
-    padding: 10px 14px; border-radius: 8px; background: var(--surface);
-    border: 1px solid var(--border); font-size: 12px; font-weight: 500;
+  .desktop-topbar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; }
+  .desktop-title { font-size: 12px; color: var(--text-secondary); font-weight: 600; }
+  .desktop-tools { display: flex; gap: 12px; }
+  .desktop-tools span { font-size: 11.5px; color: var(--muted); cursor: pointer; transition: color .15s; }
+  .desktop-tools span:hover { color: var(--text); }
+  .desktop-apps {
+    display: grid; grid-template-columns: repeat(auto-fill, minmax(84px, 1fr));
+    gap: 12px; align-content: start; flex: 1;
   }
-  .mockup-main { flex: 1; display: flex; flex-direction: column; gap: 14px; }
-  .app-list-mock {
-    border: 1px solid var(--border); border-radius: 10px;
-    background: var(--card); padding: 10px;
+  .app-tile {
+    position: relative; cursor: pointer; user-select: none;
+    background: var(--surface); border: 1px solid var(--border); border-radius: 12px;
+    padding: 14px 8px 10px; display: flex; flex-direction: column; align-items: center; gap: 8px;
+    transition: transform .18s ease, border-color .15s;
+    animation: tilePop .28s ease backwards;
   }
-  .app-item-mock {
-    display: flex; align-items: center; padding: 10px 14px;
-    border-bottom: 1px solid var(--border);
+  .app-tile:hover { border-color: var(--border-hover); transform: translateY(-2px); }
+  .app-tile .app-ico {
+    width: 40px; height: 40px; border-radius: 11px; display: grid; place-items: center;
+    font-size: 22px; background: var(--card); border: 1px solid var(--border);
   }
-  .app-item-mock:last-child { border-bottom: none; }
-  .chk-mock { width: 16px; height: 16px; border-radius: 4px; border: 1.5px solid var(--muted); margin-right: 12px; background: var(--accent); }
-  .icon-mock { width: 24px; height: 24px; border-radius: 5px; background: #1f2128; margin-right: 12px; }
-  .info-mock { height: 10px; width: 140px; background: #1f2128; border-radius: 4px; }
+  .app-tile .app-nm { font-size: 11px; color: var(--text-secondary); text-align: center; }
+  .app-tile .app-chk {
+    position: absolute; top: 7px; right: 7px; width: 17px; height: 17px; border-radius: 5px;
+    border: 1.5px solid var(--muted); background: transparent; display: grid; place-items: center; transition: all .15s;
+  }
+  .app-tile.sel .app-chk { background: var(--accent); border-color: var(--accent); }
+  .app-tile.sel .app-chk::after { content: "✓"; color: var(--accent-text); font-size: 11px; font-weight: 800; }
+  .app-tile.stashing { animation: tileStash .35s ease forwards; }
+  @keyframes tilePop { from { opacity: 0; transform: scale(.85); } to { opacity: 1; transform: scale(1); } }
+  @keyframes tileStash { to { opacity: 0; transform: translateY(14px) scale(.8); } }
+
+  .desktop-empty {
+    display: none; flex: 1; flex-direction: column; align-items: center; justify-content: center;
+    text-align: center; color: var(--text-secondary); font-size: 15px; font-weight: 600; gap: 6px; line-height: 1.7;
+  }
+  .desktop-empty .big { font-size: 34px; }
+  .desktop-empty small { font-weight: 400; font-size: 12px; color: var(--muted); max-width: 230px; }
+  .demo-desktop.empty .desktop-apps { display: none; }
+  .demo-desktop.empty .desktop-empty { display: flex; }
+  .demo-desktop.empty .desktop-tools { visibility: hidden; }
+
+  /* Right: the real Stash app panel */
+  .demo-panel { flex: 1; min-width: 240px; max-width: 320px; padding: 18px; background: var(--surface); display: flex; flex-direction: column; }
+  .panel-head { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; }
+  .panel-logo {
+    width: 34px; height: 34px; border-radius: 9px; display: grid; place-items: center;
+    background: linear-gradient(135deg, #a78bfa, #7c3aed); font-weight: 800; color: #fff; font-size: 16px;
+  }
+  .panel-head b { font-size: 15px; display: block; }
+  .panel-head span { font-size: 11px; color: var(--muted); }
+  #sess-name {
+    width: 100%; background: var(--card); border: 1px solid var(--border); color: var(--text);
+    font-size: 13px; font-family: inherit; padding: 9px 11px; border-radius: 8px; margin-bottom: 8px; outline: none;
+  }
+  #sess-name:focus { border-color: #7c3aed; }
+  .panel-stash {
+    width: 100%; border: none; border-radius: 8px; cursor: pointer;
+    background: linear-gradient(135deg, #a78bfa, #7c3aed); color: #fff;
+    font-size: 13.5px; font-weight: 700; font-family: inherit; padding: 11px; transition: opacity .15s, transform .1s;
+  }
+  .panel-stash:hover { opacity: .92; }
+  .panel-stash:active { transform: scale(.98); }
+  .panel-stash:disabled { opacity: .4; cursor: default; }
+  .panel-label {
+    font-size: 10.5px; color: var(--muted); font-weight: 600; text-transform: uppercase;
+    letter-spacing: 1px; margin: 16px 2px 8px;
+  }
+  .sess-list { display: flex; flex-direction: column; gap: 8px; overflow-y: auto; max-height: 230px; }
+  .sess-card {
+    background: var(--card); border: 1px solid var(--border); border-radius: 10px;
+    padding: 9px 11px; display: flex; align-items: center; gap: 8px; animation: tilePop .25s ease;
+  }
+  .sess-card .s-info { flex: 1; min-width: 0; }
+  .sess-card .s-info b { font-size: 12.5px; display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .sess-card .s-info span { font-size: 10.5px; color: var(--muted); }
+  .sess-card button {
+    border: 1px solid var(--border); border-radius: 7px; background: #1f2128; color: var(--text);
+    font-size: 11.5px; font-family: inherit; padding: 5px 9px; cursor: pointer; flex-shrink: 0; transition: border-color .15s;
+  }
+  .sess-card button:hover { border-color: #7c3aed; }
+  .sess-card .s-del { color: var(--danger); padding: 5px 7px; }
+  .sess-empty { color: var(--muted); font-size: 12px; text-align: center; padding: 14px 0; }
 
   /* ── Features & Use Cases ── */
   .section {
@@ -433,11 +510,10 @@
     .hero-actions .btn-primary, .hero-actions .btn-secondary { width: 100%; text-align: center; }
 
     .showcase { padding: 0 16px; margin-bottom: 72px; }
-    .mockup-body { flex-direction: column; gap: 16px; padding: 16px; }
-    .mockup-sidebar {
-      width: 100%; border-right: none; border-bottom: 1px solid var(--border);
-      padding: 0 0 14px; flex-direction: row; flex-wrap: wrap;
-    }
+    .demo-body { flex-direction: column; }
+    .demo-desktop { border-right: none; border-bottom: 1px solid var(--border); min-height: 300px; }
+    .demo-panel { max-width: none; min-width: 0; }
+    .desktop-apps { grid-template-columns: repeat(auto-fill, minmax(74px, 1fr)); gap: 10px; }
 
     .section { padding: 64px 20px; }
     .section-headline { margin-bottom: 44px; }
@@ -499,39 +575,49 @@
     </div>
   </div>
 
-  <!-- Showcase Mockup -->
-  <div class="showcase">
+  <!-- Interactive Demo -->
+  <div class="showcase" id="demo">
+    <div class="demo-caption">
+      <span class="demo-badge">▶ ลองเล่นได้เลย · Interactive Demo</span>
+      <p>นี่คือตัว Stash ของจริง — ด้านซ้ายคือหน้าจอ macOS จำลองที่คุณเปิดแอปค้างไว้หลายตัว ลองติ๊กเลือกแล้วกด "เก็บ" ดูว่าจอโล่งยังไง แล้วกด "เปิดคืน" เพื่อเรียกกลับมา</p>
+    </div>
     <div class="mockup-window">
       <div class="window-header">
         <span class="dot dot-red"></span>
         <span class="dot dot-yellow"></span>
         <span class="dot dot-green"></span>
-        <span class="window-title">Stash — Work Session Dashboard</span>
+        <span class="window-title">macOS — เดสก์ท็อปของคุณ</span>
       </div>
-      <div class="mockup-body">
-        <div class="mockup-sidebar">
-          <div class="sidebar-item" style="border-color: var(--border-hover)">Morning Routine</div>
-          <div class="sidebar-item" style="opacity: 0.5">Coding Workspace</div>
-          <div class="sidebar-item" style="opacity: 0.5">Entertainment</div>
-        </div>
-        <div class="mockup-main">
-          <div class="app-list-mock">
-            <div class="app-item-mock">
-              <div class="chk-mock"></div>
-              <div class="icon-mock"></div>
-              <div class="info-mock"></div>
-            </div>
-            <div class="app-item-mock">
-              <div class="chk-mock"></div>
-              <div class="icon-mock"></div>
-              <div class="info-mock" style="width: 160px"></div>
-            </div>
-            <div class="app-item-mock">
-              <div class="chk-mock"></div>
-              <div class="icon-mock"></div>
-              <div class="info-mock" style="width: 100px"></div>
+      <div class="demo-body">
+        <!-- Simulated desktop -->
+        <div class="demo-desktop" id="demo-desktop">
+          <div class="desktop-topbar">
+            <span class="desktop-title" id="desktop-count">แอปที่เปิดอยู่</span>
+            <div class="desktop-tools">
+              <span id="sel-all">เลือกทั้งหมด</span>
+              <span id="sel-none">ไม่เลือก</span>
             </div>
           </div>
+          <div class="desktop-apps" id="desktop-apps"></div>
+          <div class="desktop-empty">
+            <span class="big">✨</span>
+            <span>จอโล่งแล้ว!</span>
+            <small>โฟกัสงานใหม่ได้เต็มที่ — กด "เปิดคืน" ที่เซสชันด้านขวาเมื่อพร้อมกลับมาทำต่อ</small>
+          </div>
+        </div>
+        <!-- The real Stash app panel -->
+        <div class="demo-panel">
+          <div class="panel-head">
+            <div class="panel-logo">S</div>
+            <div>
+              <b>Stash</b>
+              <span id="panel-sub">พร้อมเก็บ</span>
+            </div>
+          </div>
+          <input type="text" id="sess-name" placeholder="ตั้งชื่อเซสชัน (ไม่บังคับ)" maxlength="40" />
+          <button id="stash-btn" class="panel-stash">📥 เก็บที่เลือก แล้วเคลียร์จอ</button>
+          <div class="panel-label">เซสชันที่เก็บไว้</div>
+          <div id="sess-list" class="sess-list"></div>
         </div>
       </div>
     </div>
@@ -716,6 +802,123 @@
     </div>
     <p>© 2026 Tawin · Stash — เผยแพร่ภายใต้สัญญาอนุญาต AGPL-3.0 · Built with Tauri &amp; Rust</p>
   </footer>
+
+  <!-- Interactive demo logic -->
+  <script>
+  (function(){
+    const APPS = {
+      vscode:   { nm: "VS Code",  ico: "🧩" },
+      chrome:   { nm: "Chrome",   ico: "🌐" },
+      terminal: { nm: "Terminal", ico: "⌨️" },
+      discord:  { nm: "Discord",  ico: "🎮" },
+      docker:   { nm: "Docker",   ico: "🐳" },
+      figma:    { nm: "Figma",    ico: "🎨" },
+      slack:    { nm: "Slack",    ico: "💬" },
+      spotify:  { nm: "Spotify",  ico: "🎧" },
+      notion:   { nm: "Notion",   ico: "📓" },
+      mail:     { nm: "Mail",     ico: "✉️" },
+      calendar: { nm: "Calendar", ico: "📅" },
+      youtube:  { nm: "YouTube",  ico: "▶️" }
+    };
+    const PRESET = {
+      "Coding Workspace": ["vscode","chrome","terminal","discord","docker"],
+      "Morning Routine":  ["mail","calendar","notion","chrome","spotify"],
+      "Entertainment":    ["spotify","youtube","discord","chrome"]
+    };
+
+    let openKeys = PRESET["Coding Workspace"].slice();
+    let selected = new Set(openKeys);
+    let saved = [
+      { id: uid(), name: "Morning Routine", apps: PRESET["Morning Routine"].slice(), t: Date.now() - 3600e3 },
+      { id: uid(), name: "Entertainment",   apps: PRESET["Entertainment"].slice(),   t: Date.now() - 7200e3 }
+    ];
+
+    function uid(){ return Math.random().toString(36).slice(2,8); }
+    const $ = s => document.querySelector(s);
+    const appsBox = $("#desktop-apps"), desktop = $("#demo-desktop"),
+          countEl = $("#desktop-count"), listEl = $("#sess-list"),
+          stashBtn = $("#stash-btn"), sub = $("#panel-sub"), nameIn = $("#sess-name");
+
+    function timeAgo(t){
+      const m = Math.floor((Date.now()-t)/60000);
+      if (m < 1) return "เมื่อครู่";
+      if (m < 60) return m + " นาทีที่แล้ว";
+      const h = Math.floor(m/60);
+      if (h < 24) return h + " ชม.ที่แล้ว";
+      return Math.floor(h/24) + " วันที่แล้ว";
+    }
+    function esc(x){ return x.replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
+
+    function updateBtn(){
+      const n = selected.size;
+      stashBtn.disabled = n === 0;
+      stashBtn.textContent = n === 0 ? "📥 เลือกแอปก่อน" : `📥 เก็บ ${n} แอป แล้วเคลียร์จอ`;
+      sub.textContent = openKeys.length === 0 ? "จอโล่งแล้ว ✨" : `เปิดอยู่ ${openKeys.length} · เลือก ${n}`;
+    }
+    function renderDesktop(){
+      appsBox.innerHTML = "";
+      openKeys.forEach((k, i) => {
+        const a = APPS[k]; if (!a) return;
+        const tile = document.createElement("div");
+        tile.className = "app-tile" + (selected.has(k) ? " sel" : "");
+        tile.style.animationDelay = (i * 0.03) + "s";
+        tile.innerHTML = `<div class="app-chk"></div><div class="app-ico">${a.ico}</div><div class="app-nm">${a.nm}</div>`;
+        tile.addEventListener("click", () => {
+          if (selected.has(k)) selected.delete(k); else selected.add(k);
+          tile.classList.toggle("sel");
+          updateBtn();
+        });
+        appsBox.appendChild(tile);
+      });
+      desktop.classList.toggle("empty", openKeys.length === 0);
+      countEl.textContent = `แอปที่เปิดอยู่ · ${openKeys.length} ตัว`;
+      updateBtn();
+    }
+    function renderList(){
+      listEl.innerHTML = "";
+      if (saved.length === 0){ listEl.innerHTML = '<div class="sess-empty">ยังไม่มีเซสชันที่เก็บไว้</div>'; return; }
+      saved.forEach(s => {
+        const el = document.createElement("div"); el.className = "sess-card";
+        const info = document.createElement("div"); info.className = "s-info";
+        info.innerHTML = `<b>${esc(s.name)}</b><span>${s.apps.length} แอป · ${timeAgo(s.t)}</span>`;
+        const openBtn = document.createElement("button"); openBtn.textContent = "เปิดคืน";
+        openBtn.addEventListener("click", () => restore(s));
+        const del = document.createElement("button"); del.className = "s-del"; del.textContent = "✕";
+        del.addEventListener("click", () => { saved = saved.filter(x => x.id !== s.id); renderList(); });
+        el.append(info, openBtn, del);
+        listEl.appendChild(el);
+      });
+    }
+    function defaultName(){
+      return "เก็บเมื่อ " + new Date().toLocaleTimeString("th-TH", { hour: "2-digit", minute: "2-digit" });
+    }
+    function stash(){
+      if (selected.size === 0) return;
+      const apps = openKeys.filter(k => selected.has(k));
+      const name = nameIn.value.trim() || defaultName();
+      [...appsBox.children].forEach(tile => { if (tile.classList.contains("sel")) tile.classList.add("stashing"); });
+      setTimeout(() => {
+        saved.unshift({ id: uid(), name, apps, t: Date.now() });
+        openKeys = openKeys.filter(k => !selected.has(k));
+        selected = new Set(openKeys);
+        nameIn.value = "";
+        renderDesktop(); renderList();
+      }, 360);
+    }
+    function restore(s){
+      s.apps.forEach(k => { if (!openKeys.includes(k)){ openKeys.push(k); selected.add(k); } });
+      renderDesktop();
+    }
+
+    $("#sel-all").addEventListener("click", () => { selected = new Set(openKeys); renderDesktop(); });
+    $("#sel-none").addEventListener("click", () => { selected = new Set(); renderDesktop(); });
+    stashBtn.addEventListener("click", stash);
+    nameIn.addEventListener("keydown", e => { if (e.key === "Enter") stash(); });
+
+    renderDesktop();
+    renderList();
+  })();
+  </script>
 
 </body>
 </html>
