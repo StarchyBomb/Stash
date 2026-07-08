@@ -484,6 +484,7 @@ fn open_url_cmd(url: String) -> Result<(), String> {
     if !url.starts_with("https://") {
         return Err("only https urls are allowed".into());
     }
+    use std::os::windows::process::CommandExt;
     std::process::Command::new("rundll32")
         .args(["url.dll,FileProtocolHandler", &url])
         .creation_flags(0x08000000) // CREATE_NO_WINDOW
