@@ -478,6 +478,20 @@ fn set_autostart_cmd(app: AppHandle, enabled: bool) -> Result<(), String> {
     }
 }
 
+#[tauri::command]
+fn open_url_cmd(url: String) -> Result<(), String> {
+    // เปิดเฉพาะลิงก์ https ในเบราว์เซอร์เริ่มต้น (ส่ง url เป็น arg แยก ไม่ผ่าน shell parsing)
+    if !url.starts_with("https://") {
+        return Err("only https urls are allowed".into());
+    }
+    std::process::Command::new("rundll32")
+        .args(["url.dll,FileProtocolHandler", &url])
+        .creation_flags(0x08000000) // CREATE_NO_WINDOW
+        .spawn()
+        .map(|_| ())
+        .map_err(|e| e.to_string())
+}
+
 fn main() {
     tauri::Builder::default()
         .plugin(tauri_plugin_autostart::init(
@@ -491,7 +505,8 @@ fn main() {
             restore_session_cmd,
             close_session_apps_cmd,
             delete_session_cmd,
-            set_autostart_cmd
+            set_autostart_cmd,
+            open_url_cmd
         ])
         .setup(|app| {
             let cfg = load_config(app.handle());

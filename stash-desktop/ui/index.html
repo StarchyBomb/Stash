@@ -321,6 +321,7 @@
       <span class="sub" id="app-subtitle">เก็บแอปไว้ก่อน เปิดคืนทีหลัง</span>
     </div>
     <div class="spacer"></div>
+    <button class="icon-btn" id="support-btn" title="เลี้ยงกาแฟผู้พัฒนา" style="margin-right:8px;">☕</button>
     <button class="icon-btn" id="open-settings">⚙</button>
   </header>
 
@@ -388,6 +389,10 @@
 <script>
   const { invoke } = window.__TAURI__.core;
   const $ = id => document.getElementById(id);
+
+  $("support-btn").addEventListener("click", () => {
+    invoke("open_url_cmd", { url: "https://buymeacoffee.com/tawin" });
+  });
 
   let openApps = [];
   let sessions = [];

@@ -6,16 +6,18 @@
 
 เก็บทุกอย่างตรงหน้า กลับมาทำต่อในคลิกเดียว
 
-[![Version](https://img.shields.io/badge/version-0.1.0-7c3aed?style=flat-square)](https://github.com/StarchyBomb/Stash/releases)
+[![Version](https://img.shields.io/badge/version-0.2.0-7c3aed?style=flat-square)](https://github.com/StarchyBomb/Stash/releases)
 [![Platform](https://img.shields.io/badge/platform-Windows%20%7C%20macOS-0d1117?style=flat-square)](https://github.com/StarchyBomb/Stash)
-[![License](https://img.shields.io/badge/license-Free-30a46c?style=flat-square)](https://github.com/StarchyBomb/Stash)
+[![License](https://img.shields.io/badge/license-AGPL--3.0-30a46c?style=flat-square)](LICENSE)
 [![Language](https://img.shields.io/badge/language-EN%20%7C%20TH-a78bfa?style=flat-square)](https://github.com/StarchyBomb/Stash)
+[![Buy Me a Coffee](https://img.shields.io/badge/Buy%20Me%20a%20Coffee-FFDD00?style=flat-square&logo=buymeacoffee&logoColor=black)](https://buymeacoffee.com/tawin)
 
 [Browser Extension](#-browser-extension) •
 [Desktop App](#%EF%B8%8F-desktop-app) •
 [Use Cases](#-use-cases) •
 [How to Update](#-how-to-update) •
-[SmartScreen Bypass](#%EF%B8%8F-smartscreen-warning-windows)
+[Support](#-support-the-project) •
+[License](#-license--ownership)
 
 </div>
 
@@ -180,8 +182,45 @@ npm run build        # Build production installer (.exe)
 
 ---
 
+## ☕ Support the Project
+
+Stash is **free and open source**, built and maintained by one developer in their spare time. If it saves you time or makes your day a little smoother, please consider buying me a coffee — it directly funds new features and ongoing maintenance.
+
 <div align="center">
 
-**Made with ❤️ by [StarchyBomb](https://github.com/StarchyBomb)**
+[![Buy Me a Coffee](https://img.shields.io/badge/Buy%20Me%20a%20Coffee-Support%20Stash-FFDD00?style=for-the-badge&logo=buymeacoffee&logoColor=black)](https://buymeacoffee.com/tawin)
+
+**→ [buymeacoffee.com/tawin](https://buymeacoffee.com/tawin)**
+
+</div>
+
+Every contribution, no matter how small, is genuinely appreciated. 🙏
+
+---
+
+## 📜 License & Ownership
+
+**Copyright © 2026 Tawin. All rights reserved.**
+
+Stash is the original work of **Tawin** ([@StarchyBomb](https://github.com/StarchyBomb)) and is licensed under the **[GNU Affero General Public License v3.0 (AGPL-3.0)](LICENSE)**.
+
+What this means:
+
+- ✅ You are free to **use, study, modify, and share** Stash.
+- ✅ You **must** keep this copyright notice and give appropriate credit to the original author.
+- ✅ Any modified or derivative version — including software run over a network — **must remain open source under AGPL-3.0** and disclose its source.
+- ❌ You **may not** relicense it, remove attribution, or claim this project (or a derivative) as your own original work.
+
+The authorship and creation history of this project are permanently recorded in this repository's Git commit history under the account [@StarchyBomb](https://github.com/StarchyBomb). This public, timestamped record establishes original ownership.
+
+For commercial licensing or other arrangements outside the terms of AGPL-3.0, please contact the author.
+
+---
+
+<div align="center">
+
+**Made with ❤️ by [Tawin (@StarchyBomb)](https://github.com/StarchyBomb)**
+
+If you find Stash useful, [buy me a coffee ☕](https://buymeacoffee.com/tawin)
 
 </div>

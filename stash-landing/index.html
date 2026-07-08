@@ -307,6 +307,65 @@
   .step-desc h5 { font-size: 16px; font-weight: 600; margin-bottom: 6px; }
   .step-desc p { font-size: 14px; color: var(--text-secondary); line-height: 1.6; }
 
+  /* ── Media images (Unsplash) ── */
+  .card-media {
+    width: 100%; height: 150px; border-radius: 10px;
+    object-fit: cover; margin-bottom: 22px;
+    border: 1px solid var(--border);
+    filter: grayscale(15%) brightness(0.92);
+    transition: filter 0.25s ease;
+  }
+  .feature-card:hover .card-media { filter: grayscale(0%) brightness(1); }
+
+  .split {
+    display: grid; grid-template-columns: 1fr 1fr;
+    gap: 48px; align-items: center; max-width: 1020px; margin: 0 auto;
+  }
+  .split img {
+    width: 100%; border-radius: 16px; border: 1px solid var(--border);
+    box-shadow: 0 24px 64px rgba(0,0,0,0.6);
+    filter: grayscale(10%);
+  }
+  .split h3 {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: 30px; font-weight: 700; letter-spacing: -0.8px; margin-bottom: 18px;
+  }
+  .split p { color: var(--text-secondary); font-size: 15px; margin-bottom: 16px; }
+  .split ul { list-style: none; }
+  .split li {
+    font-size: 14px; color: var(--text); margin-bottom: 12px;
+    display: flex; align-items: flex-start; gap: 10px;
+  }
+  .split li svg { flex-shrink: 0; color: var(--success); margin-top: 3px; }
+  @media (max-width: 760px) { .split { grid-template-columns: 1fr; gap: 28px; } }
+
+  /* ── Support / Buy Me a Coffee ── */
+  .support-wrap {
+    max-width: 720px; margin: 0 auto; text-align: center;
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 20px; padding: 56px 40px;
+    position: relative; overflow: hidden;
+  }
+  .support-wrap h3 {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: 30px; font-weight: 800; letter-spacing: -0.8px; margin-bottom: 14px;
+  }
+  .support-wrap p { color: var(--text-secondary); font-size: 15px; max-width: 480px; margin: 0 auto 28px; }
+  .bmc-btn {
+    display: inline-flex; align-items: center; gap: 10px;
+    background: #FFDD00; color: #0d0d0d;
+    padding: 14px 26px; border-radius: 10px;
+    font-weight: 700; font-size: 15px; text-decoration: none;
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+    box-shadow: 0 8px 24px rgba(255,221,0,0.18);
+  }
+  .bmc-btn:hover { transform: translateY(-2px); box-shadow: 0 12px 32px rgba(255,221,0,0.28); }
+  .bmc-btn svg { width: 22px; height: 22px; }
+  .btn-nav-support {
+    color: var(--text) !important; display: inline-flex; align-items: center; gap: 6px;
+  }
+  .btn-nav-support svg { width: 15px; height: 15px; color: #FFDD00; }
+
   /* ── Footer ── */
   footer {
     padding: 80px 8% 40px;
@@ -346,6 +405,10 @@
     <div class="nav-links">
       <a href="#features">ฟีเจอร์</a>
       <a href="#usecases">กรณีการใช้งาน</a>
+      <a href="#support" class="btn-nav-support">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M2 21h18v-2H2v2zM20 8h-2V5h2v3zm0-5H4v10a4 4 0 0 0 4 4h6a4 4 0 0 0 4-4v-1h2a2 2 0 0 0 2-2V5a2 2 0 0 0-2-2z"/></svg>
+        สนับสนุน
+      </a>
       <a href="#download" class="btn-nav-cta">ดาวน์โหลด</a>
     </div>
   </nav>
@@ -445,35 +508,63 @@
 
     <div class="grid-3">
       <div class="feature-card" style="background: var(--surface)">
+        <img class="card-media" loading="lazy" src="https://images.unsplash.com/photo-1461749280684-dccba630e2f6?w=800&q=80&auto=format&fit=crop" alt="หน้าจอโค้ดของนักพัฒนา" />
         <div class="feature-icon-wrapper">
           <!-- SVG Code Icon -->
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
         </div>
         <h4>สำหรับนักพัฒนา (Developers)</h4>
-        <p>เก็บเซสชันแท็บคู่มือ พร้อมโปรแกรม VS Code, Discord, Docker Desktop และ Chrome แล้วสลับไปทำงานอื่นได้รวดเร็ว แรมไม่เต็ม</p>
+        <p>กำลังดีบั๊กอยู่แล้วมีประชุมด่วน? กด Stash เก็บ VS Code, Docker, Discord และแท็บ Stack Overflow ทั้งชุดไว้ก่อน พอประชุมเสร็จกดคืนกลับมาต่อจากจุดเดิม — ไม่ต้องเปิดใหม่ทีละตัว แรมไม่เต็ม</p>
       </div>
 
       <div class="feature-card" style="background: var(--surface)">
+        <img class="card-media" loading="lazy" src="https://images.unsplash.com/photo-1455390582262-044cdead277a?w=800&q=80&auto=format&fit=crop" alt="โต๊ะทำงานนักเขียน" />
         <div class="feature-icon-wrapper">
           <!-- SVG Edit/Pen Icon -->
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
         </div>
         <h4>สำหรับนักเขียน / ครีเอเตอร์</h4>
-        <p>เซฟหน้าต่างแอปศึกษาข้อมูล อ้างอิง หน้าเว็บค้นหา และโปรแกรมพิมพ์งาน แยกไว้ตามประเภทหัวข้อ เพื่อความต่อเนื่องในการผลิตชิ้นงาน</p>
+        <p>ทำงานหลายโปรเจกต์พร้อมกัน? แยกเซสชัน "งานเขียนบทความ" กับ "ตัดต่อวิดีโอ" ไว้คนละชุด สลับไปมาได้ในคลิกเดียว หน้าจอไม่รก โฟกัสได้ทีละงาน</p>
       </div>
 
       <div class="feature-card" style="background: var(--surface)">
+        <img class="card-media" loading="lazy" src="https://images.unsplash.com/photo-1497935586351-b67a49e012bf?w=800&q=80&auto=format&fit=crop" alt="กาแฟยามเช้าเริ่มวันใหม่" />
         <div class="feature-icon-wrapper">
           <!-- SVG Calendar Icon -->
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
         </div>
         <h4>กิจวัตรเช้าวันใหม่ (Daily Routine)</h4>
-        <p>เปิดแอปสำหรับเช็คข้อมูลรายวัน เช็คปฏิทิน เช็คอีเมล โน้ต และแอปข่าวสารได้พร้อมกันในคลิกเดียวตอนเริ่มวันใหม่</p>
+        <p>เปิดคอมตอนเช้าแล้วต้องคลิกเปิดปฏิทิน อีเมล โน้ต ข่าว ทีละอัน? เซฟชุด "เริ่มวัน" ไว้ครั้งเดียว เช้าถัดไปกดปุ่มเดียวเปิดครบทุกแอปพร้อมกัน</p>
       </div>
     </div>
   </div>
 
 
+
+  <!-- How it works (visual split) -->
+  <div class="section">
+    <div class="split">
+      <img loading="lazy" src="https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?w=1000&q=80&auto=format&fit=crop" alt="โต๊ะทำงานที่สะอาดโล่ง" />
+      <div>
+        <h3>ใช้งานง่ายใน 3 ขั้นตอน</h3>
+        <p>ไม่ต้องเรียนรู้อะไรซับซ้อน — Stash ออกแบบมาให้กดปุ่มเดียวก็จบ</p>
+        <ul>
+          <li>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+            <span><strong>กด "เก็บ"</strong> — Stash รวบรวมแท็บและโปรแกรมที่เปิดอยู่ทั้งหมดเป็นเซสชันเดียว แล้วปิดให้อัตโนมัติ</span>
+          </li>
+          <li>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+            <span><strong>โฟกัสงานใหม่</strong> — หน้าจอโล่ง สมองโล่ง ทำงานตรงหน้าได้เต็มที่โดยไม่มีของค้าง</span>
+          </li>
+          <li>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+            <span><strong>กด "คืน"</strong> — พร้อมกลับมาเมื่อไหร่ กดครั้งเดียวทุกอย่างเปิดกลับมาเหมือนเดิม</span>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </div>
 
   <!-- Installation Guide Section -->
   <div class="section" id="download" style="background: #090a0d;">
@@ -521,6 +612,20 @@
     </div>
   </div>
 
+  <!-- Support Section -->
+  <div class="section" id="support">
+    <div class="support-wrap">
+      <div class="bg-glow" style="top:-200px;"></div>
+      <div class="hero-tag" style="margin-bottom:20px;">100% Open Source · ฟรีตลอด</div>
+      <h3>ถูกใจ Stash ไหม? เลี้ยงกาแฟกันได้นะ ☕</h3>
+      <p>Stash เป็นโปรเจกต์โอเพนซอร์สที่พัฒนาโดยคนคนเดียว และจะฟรีตลอดไป ถ้ามันช่วยให้ชีวิตคุณง่ายขึ้น การสนับสนุนเล็ก ๆ ของคุณจะช่วยให้ผมพัฒนาฟีเจอร์ใหม่และดูแลมันต่อไปได้</p>
+      <a href="https://buymeacoffee.com/tawin" target="_blank" rel="noopener" class="bmc-btn">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M2 21h18v-2H2v2zM20 8h-2V5h2v3zm0-5H4v10a4 4 0 0 0 4 4h6a4 4 0 0 0 4-4v-1h2a2 2 0 0 0 2-2V5a2 2 0 0 0-2-2z"/></svg>
+        Buy me a coffee
+      </a>
+    </div>
+  </div>
+
   <!-- Footer -->
   <footer>
     <div class="footer-logo">
@@ -530,10 +635,11 @@
     <div class="footer-links">
       <a href="#features">ฟีเจอร์</a>
       <a href="#usecases">กรณีการใช้งาน</a>
-      <a href="#pricing">ราคา</a>
-      <a href="https://github.com/StarchyBomb/Stash" target="_blank">GitHub Repository</a>
+      <a href="#download">ดาวน์โหลด</a>
+      <a href="https://buymeacoffee.com/tawin" target="_blank" rel="noopener">สนับสนุน ☕</a>
+      <a href="https://github.com/StarchyBomb/Stash" target="_blank">GitHub</a>
     </div>
-    <p>© 2026 Stash. All rights reserved. Built with Tauri and Rust.</p>
+    <p>© 2026 Tawin · Stash — เผยแพร่ภายใต้สัญญาอนุญาต AGPL-3.0 · Built with Tauri &amp; Rust</p>
   </footer>
 
 </body>

@@ -76,6 +76,16 @@
   .session .del { color: var(--danger); padding: 5px 8px; }
   .session .del.confirm { background: var(--danger); color: #fff; border-color: var(--danger); }
   .empty { text-align: center; color: var(--muted); font-size: 12px; padding: 14px 0; }
+
+  .support-link {
+    display: flex; align-items: center; justify-content: center; gap: 6px;
+    margin-top: 12px; padding: 9px; border-radius: 8px;
+    background: #FFDD00; color: #0d0d0d;
+    font-size: 12px; font-weight: 700; text-decoration: none;
+    transition: opacity 0.15s;
+  }
+  .support-link:hover { opacity: 0.88; }
+  .support-link svg { width: 15px; height: 15px; }
 </style>
 </head>
 <body>
@@ -98,6 +108,11 @@
 
   <h2>เซสชันที่เก็บไว้</h2>
   <div id="sessions"></div>
+
+  <a id="support-link" class="support-link" href="https://buymeacoffee.com/tawin" target="_blank" rel="noopener">
+    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M2 21h18v-2H2v2zM20 8h-2V5h2v3zm0-5H4v10a4 4 0 0 0 4 4h6a4 4 0 0 0 4-4v-1h2a2 2 0 0 0 2-2V5a2 2 0 0 0-2-2z"/></svg>
+    <span id="support-text">☕ เลี้ยงกาแฟผู้พัฒนา</span>
+  </a>
 
   <script src="popup.js"></script>
 </body>

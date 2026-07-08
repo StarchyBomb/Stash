@@ -20,7 +20,8 @@ const TRANSLATIONS = {
     defaultName: (d, t) => `เก็บเมื่อ ${d} ${t}`,
     restoreBtn: "เปิดคืน",
     delConfirm: "ลบ?",
-    tabsUnit: "แท็บ"
+    tabsUnit: "แท็บ",
+    support: "☕ เลี้ยงกาแฟผู้พัฒนา"
   },
   en: {
     placeholder: "Session name (optional)",
@@ -36,7 +37,8 @@ const TRANSLATIONS = {
     defaultName: (d, t) => `Stashed on ${d} ${t}`,
     restoreBtn: "Restore",
     delConfirm: "Delete?",
-    tabsUnit: "tabs"
+    tabsUnit: "tabs",
+    support: "☕ Buy me a coffee"
   }
 };
 
@@ -119,6 +121,7 @@ async function render() {
   // Update static UI texts
   $("name").placeholder = t.placeholder;
   document.querySelector("h2").textContent = t.savedSessions;
+  $("support-text").textContent = t.support;
 
   const tabs = await getStashableTabs();
   $("tab-count").textContent = t.tabCount(tabs.length);
