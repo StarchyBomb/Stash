@@ -6,298 +6,256 @@
 <title>Stash</title>
 <style>
   :root {
-    --bg: #0e0f11;
-    --surface: #161719;
-    --card: #1c1d20;
-    --border: #27292e;
-    --border-hover: #3a3d44;
-    --text: #eaebed;
-    --text-secondary: #b0b3b8;
-    --muted: #6c6f76;
-    --accent: #f0f0f2;
-    --accent-text: #0e0f11;
-    --danger: #e5484d;
-    --success: #30a46c;
+    --bg: #0a0b0f;
+    --side: #0f1116;
+    --panel: #14161d;
+    --card: #1b1e28;
+    --card2: #191c25;
+    --border: #262a36;
+    --border-hover: #343a49;
+    --text: #eef0f5;
+    --text-secondary: #a9afc0;
+    --muted: #6c7285;
+    --accent: #a78bfa;
+    --accent2: #7c3aed;
+    --accent-soft: rgba(167,139,250,.13);
+    --accent-text: #ffffff;
+    --danger: #e5675f;
+    --success: #43c893;
   }
   * { margin: 0; padding: 0; box-sizing: border-box; }
   html, body { height: 100%; overflow: hidden; }
   body {
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Leelawadee UI", system-ui, sans-serif;
-    background: var(--bg);
+    background:
+      radial-gradient(70% 55% at 85% -8%, rgba(124,58,237,.10), transparent 60%),
+      var(--bg);
     color: var(--text);
-    display: flex; flex-direction: column;
+    display: flex;
     user-select: none;
     -webkit-font-smoothing: antialiased;
   }
+  ::-webkit-scrollbar { width: 7px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+  ::-webkit-scrollbar-thumb:hover { background: var(--border-hover); }
 
-  /* ── Header ── */
-  header {
-    display: flex; align-items: center;
-    padding: 22px 28px 16px;
-    flex-shrink: 0;
-    border-bottom: 1px solid var(--border);
-    background: var(--surface);
+  /* ── Sidebar ── */
+  .side {
+    width: 268px; flex-shrink: 0;
+    background: var(--side);
+    border-right: 1px solid var(--border);
+    display: flex; flex-direction: column;
+    padding: 16px 14px 14px;
   }
+  .brand { display: flex; align-items: center; gap: 11px; padding: 6px 6px 18px; }
   .logo {
-    width: 38px; height: 38px; border-radius: 8px;
-    background: var(--accent);
+    width: 38px; height: 38px;
     display: grid; place-items: center;
-    font-weight: 800; font-size: 19px; color: var(--accent-text);
+    filter: drop-shadow(0 4px 10px rgba(0,0,0,.4));
   }
-  .brand { margin-left: 14px; }
-  h1 { font-size: 18px; font-weight: 600; letter-spacing: -0.3px; }
-  header .sub { font-size: 12px; color: var(--muted); margin-top: 1px; }
-  header .spacer { flex: 1; }
-  
-  .icon-btn {
-    background: none; border: 1px solid var(--border); color: var(--muted);
-    width: 34px; height: 34px; border-radius: 8px;
-    display: grid; place-items: center; cursor: pointer;
-    font-size: 15px; transition: all 0.2s ease;
-  }
-  .icon-btn:hover { background: var(--card); color: var(--text); border-color: var(--border-hover); }
+  .logo svg { width: 34px; height: 34px; }
+  .brand h1 { font-size: 16px; font-weight: 700; letter-spacing: -0.2px; }
+  .brand .sub { font-size: 11px; color: var(--muted); margin-top: 1px; }
 
-  /* ── Main scroll ── */
-  .content {
+  .nav { display: flex; flex-direction: column; gap: 3px; }
+  .nav-item {
+    display: flex; align-items: center; gap: 11px;
+    padding: 9px 11px; border-radius: 9px;
+    color: var(--text-secondary); font-size: 13.5px; cursor: pointer;
+    background: none; border: none; font-family: inherit; text-align: left; width: 100%;
+    transition: background 0.15s, color 0.15s;
+  }
+  .nav-item:hover { background: var(--card2); color: var(--text); }
+  .nav-item.on { background: var(--accent-soft); color: var(--text); font-weight: 600; }
+  .nav-item svg { width: 16px; height: 16px; stroke: currentColor; fill: none; stroke-width: 1.8; flex-shrink: 0; }
+  .nav-item.on svg { stroke: var(--accent); }
+
+  .side-label {
+    font-size: 10px; font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase;
+    color: var(--muted); margin: 22px 8px 10px;
+  }
+  .sessions { flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 8px; margin: 0 -2px; padding: 0 2px 4px; }
+
+  .session {
+    background: var(--card); border: 1px solid var(--border); border-radius: 12px;
+    padding: 12px; display: flex; flex-direction: column; gap: 10px;
+    transition: border-color 0.15s;
+  }
+  .session:hover { border-color: var(--border-hover); }
+  .session-info b {
+    display: block; font-size: 13px; font-weight: 600;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-bottom: 2px;
+  }
+  .session-info span { font-size: 11px; color: var(--muted); }
+
+  .stack { display: flex; gap: -4px; }
+  .stack .mini {
+    width: 22px; height: 22px; border-radius: 6px; margin-right: -6px;
+    background: var(--card2); border: 1px solid var(--border);
+    display: grid; place-items: center; font-size: 10px; font-weight: 700; color: var(--muted);
+    overflow: hidden;
+  }
+  .stack .mini:last-child { margin-right: 0; }
+  .stack .mini img { width: 100%; height: 100%; object-fit: contain; }
+
+  .session-btns { display: flex; gap: 6px; }
+  .btn-ghost {
     flex: 1;
+    border: 1px solid var(--border); border-radius: 7px;
+    background: transparent; color: var(--text-secondary);
+    font-size: 11.5px; font-family: inherit; padding: 6px 8px;
+    cursor: pointer; transition: all 0.15s ease; white-space: nowrap;
+  }
+  .btn-ghost:hover { background: var(--accent-soft); color: var(--text); border-color: var(--border-hover); }
+  .btn-close-again { color: var(--text-secondary); }
+  .btn-close-again:hover { background: rgba(229,103,95,0.1); border-color: var(--danger); color: var(--danger); }
+  .btn-del { flex: 0 0 auto; color: var(--muted); padding: 6px 9px; }
+  .btn-del:hover { background: rgba(229,103,95,0.1); border-color: var(--danger); color: var(--danger); }
+  .btn-del.confirm { background: var(--danger); color: #fff; border-color: var(--danger); flex: 1; }
+
+  .side-foot { border-top: 1px solid var(--border); padding-top: 12px; margin-top: 8px; }
+  .foot-btn {
+    display: flex; align-items: center; gap: 9px; width: 100%;
+    background: none; border: none; color: var(--text-secondary); font-family: inherit;
+    font-size: 12.5px; padding: 8px 11px; border-radius: 8px; cursor: pointer;
+    transition: background 0.15s, color 0.15s;
+  }
+  .foot-btn:hover { background: var(--card2); color: var(--text); }
+
+  /* ── Main ── */
+  .main {
+    flex: 1; min-width: 0;
+    display: flex; flex-direction: column;
     overflow-y: auto;
-    padding: 24px 28px 28px;
-    display: flex;
-    flex-direction: column;
-    gap: 28px;
+    padding: 26px clamp(24px, 4vw, 44px) 32px;
   }
-  .content::-webkit-scrollbar { width: 6px; }
-  .content::-webkit-scrollbar-track { background: transparent; }
-  .content::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+  .main-head { margin-bottom: 24px; }
+  .main-head h2 { font-size: 22px; font-weight: 700; letter-spacing: -0.3px; }
+  .main-head .desc { font-size: 13px; color: var(--muted); margin-top: 4px; }
 
-  /* ── Section ── */
-  .section-header {
-    display: flex; justify-content: space-between; align-items: center;
-    margin-bottom: 12px;
+  .sec-head {
+    display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px;
   }
-  .section-title {
-    font-size: 12px; color: var(--muted); font-weight: 600;
-    text-transform: uppercase; letter-spacing: 0.8px;
+  .sec-title {
+    font-size: 11px; color: var(--muted); font-weight: 600;
+    text-transform: uppercase; letter-spacing: 0.1em;
   }
-  .section-links { display: flex; gap: 14px; }
-  .section-links span {
-    font-size: 12px; color: var(--text-secondary); cursor: pointer;
-    transition: color 0.15s;
-  }
-  .section-links span:hover { color: var(--text); }
+  .sec-links { display: flex; gap: 14px; }
+  .sec-links span { font-size: 12px; color: var(--text-secondary); cursor: pointer; transition: color 0.15s; }
+  .sec-links span:hover { color: var(--accent); }
 
-  /* ── Stash card ── */
-  .card {
-    background: var(--card);
-    border: 1px solid var(--border);
-    border-radius: 14px;
-    padding: 0;
-    overflow: hidden;
+  /* App tiles */
+  .tiles {
+    display: grid; grid-template-columns: repeat(auto-fill, minmax(96px, 1fr));
+    gap: 12px;
   }
-
-  /* ── App list ── */
-  .app-list { max-height: 260px; overflow-y: auto; }
-  .app-list::-webkit-scrollbar { width: 4px; }
-  .app-list::-webkit-scrollbar-track { background: transparent; }
-  .app-list::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
-
-  .app-item {
-    display: flex; align-items: center;
-    padding: 12px 18px;
-    border-bottom: 1px solid var(--border);
-    cursor: pointer;
-    transition: background 0.12s ease;
+  .tile {
+    position: relative; cursor: pointer;
+    background: var(--card); border: 1px solid var(--border); border-radius: 13px;
+    padding: 16px 8px 12px;
+    display: flex; flex-direction: column; align-items: center; gap: 9px;
+    transition: transform 0.15s ease, border-color 0.15s;
   }
-  .app-item:last-child { border-bottom: none; }
-  .app-item:hover { background: rgba(255,255,255,0.025); }
-
-  /* Custom checkbox */
-  .chk-wrap { position: relative; display: flex; align-items: center; margin-right: 14px; }
-  .chk-wrap input { position: absolute; opacity: 0; width: 0; height: 0; }
-  .chk-box {
-    width: 18px; height: 18px;
-    border: 1.5px solid var(--muted);
-    border-radius: 5px;
-    transition: all 0.15s ease;
-    display: flex; align-items: center; justify-content: center;
+  .tile:hover { border-color: var(--border-hover); transform: translateY(-2px); }
+  .tile.sel { border-color: var(--accent); background: linear-gradient(180deg, var(--accent-soft), transparent); }
+  .tile-chk {
+    position: absolute; top: 8px; right: 8px;
+    width: 18px; height: 18px; border-radius: 6px;
+    border: 1.5px solid var(--muted); background: transparent;
+    display: grid; place-items: center; transition: all 0.15s;
   }
-  .chk-wrap input:checked + .chk-box {
-    background: var(--accent); border-color: var(--accent);
+  .tile.sel .tile-chk { background: var(--accent); border-color: var(--accent); }
+  .tile.sel .tile-chk::after {
+    content: ""; width: 5px; height: 9px;
+    border: solid #fff; border-width: 0 2px 2px 0;
+    transform: rotate(45deg) translate(0, -1px);
   }
-  .chk-box::after {
-    content: ""; display: none;
-    width: 5px; height: 9px;
-    border: solid var(--accent-text);
-    border-width: 0 2px 2px 0;
-    transform: rotate(45deg) translate(-1px, -1px);
-  }
-  .chk-wrap input:checked + .chk-box::after { display: block; }
-
-  /* App icon */
   .app-icon {
-    width: 30px; height: 30px; border-radius: 6px;
-    margin-right: 12px; flex-shrink: 0;
-    background: var(--border); display: grid; place-items: center;
-    font-size: 13px; font-weight: 700; color: var(--muted);
-    overflow: hidden;
+    width: 42px; height: 42px; border-radius: 12px;
+    background: var(--card2); border: 1px solid var(--border);
+    display: grid; place-items: center;
+    font-size: 17px; font-weight: 700; color: var(--muted); overflow: hidden;
   }
-  .app-icon img {
-    width: 100%; height: 100%; object-fit: contain;
-    image-rendering: auto;
-  }
-
-  .app-info { flex: 1; min-width: 0; }
-  .app-name {
-    font-size: 13px; font-weight: 500; color: var(--text);
-    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-    line-height: 1.3;
-  }
-  .app-title {
-    font-size: 11px; color: var(--muted);
-    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  .app-icon img { width: 100%; height: 100%; object-fit: contain; }
+  .tile-nm {
+    font-size: 11.5px; color: var(--text-secondary); text-align: center;
+    max-width: 100%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
   }
 
-  /* ── Input + button area ── */
-  .card-actions {
-    padding: 14px 18px;
-    display: flex; flex-direction: column; gap: 10px;
-    border-top: 1px solid var(--border);
-    background: var(--surface);
+  /* Capture footer */
+  .capture {
+    margin-top: 20px; display: flex; flex-direction: column; gap: 10px;
+    width: 100%;
   }
-
   input[type="text"] {
     width: 100%;
-    background: var(--bg); border: 1px solid var(--border); border-radius: 8px;
+    background: var(--panel); border: 1px solid var(--border); border-radius: 10px;
     color: var(--text); font-size: 13px; font-family: inherit;
-    padding: 10px 14px; outline: none;
-    transition: border-color 0.2s ease;
+    padding: 11px 14px; outline: none; transition: border-color 0.2s;
   }
-  input[type="text"]:focus { border-color: var(--border-hover); }
+  input[type="text"]:focus { border-color: var(--accent); }
   input[type="text"]::placeholder { color: var(--muted); }
 
   .btn-primary {
     width: 100%;
-    background: var(--accent); color: var(--accent-text);
-    border: none; border-radius: 8px;
-    font-size: 14px; font-weight: 600; font-family: inherit;
-    padding: 12px; cursor: pointer;
-    transition: all 0.15s ease;
+    background: linear-gradient(140deg, var(--accent), var(--accent2)); color: #fff;
+    border: none; border-radius: 10px;
+    font-size: 14px; font-weight: 650; font-family: inherit;
+    padding: 13px; cursor: pointer; transition: opacity 0.15s, transform 0.1s;
   }
-  .btn-primary:hover { background: #dcdce0; }
-  .btn-primary:active { transform: scale(0.995); }
-  .btn-primary:disabled { opacity: 0.2; cursor: default; transform: none; }
+  .btn-primary:hover { opacity: 0.92; }
+  .btn-primary:active { transform: scale(0.99); }
+  .btn-primary:disabled { opacity: 0.35; cursor: default; transform: none; }
 
-  /* ── Sessions ── */
-  .sessions { display: flex; flex-direction: column; gap: 10px; }
-
-  .session {
-    background: var(--card); border: 1px solid var(--border); border-radius: 14px;
-    padding: 18px;
-    display: flex; flex-direction: column; gap: 14px;
-    transition: border-color 0.2s ease;
-  }
-  .session:hover { border-color: var(--border-hover); }
-
-  .session-top { display: flex; align-items: center; }
-  .session-info { flex: 1; min-width: 0; }
-  .session-info b {
-    display: block; font-size: 14px; font-weight: 500;
-    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-    margin-bottom: 3px;
-  }
-  .session-info span { font-size: 12px; color: var(--muted); }
-
-  .session-btns { display: flex; gap: 6px; flex-shrink: 0; }
-
-  .btn-ghost {
-    border: 1px solid var(--border); border-radius: 7px;
-    background: transparent; color: var(--text-secondary);
-    font-size: 12px; font-family: inherit; padding: 7px 14px;
-    cursor: pointer; transition: all 0.15s ease;
-  }
-  .btn-ghost:hover { background: var(--border); color: var(--text); }
-  .btn-close-again { color: var(--danger); }
-  .btn-close-again:hover { background: rgba(229, 72, 77, 0.1); border-color: var(--danger); color: var(--danger); }
-  .btn-del { color: var(--muted); padding: 7px 10px; }
-  .btn-del:hover { background: rgba(229, 72, 77, 0.1); border-color: var(--danger); color: var(--danger); }
-  .btn-del.confirm { background: var(--danger); color: #fff; border-color: var(--danger); }
-
-  /* App preview inside session */
-  .session-apps {
-    display: flex; flex-wrap: wrap; gap: 6px;
-    padding: 10px 12px;
-    background: var(--bg);
-    border-radius: 8px;
-    border: 1px solid var(--border);
-  }
-  .session-app-tag {
-    display: flex; align-items: center; gap: 5px;
-    background: var(--card);
-    border: 1px solid var(--border);
-    border-radius: 6px;
-    padding: 4px 8px;
-    font-size: 11px; color: var(--text-secondary);
-  }
-  .session-app-tag img {
-    width: 14px; height: 14px; border-radius: 3px;
-  }
-
-  .empty { text-align: center; color: var(--muted); font-size: 13px; padding: 32px 0; }
+  .empty { text-align: center; color: var(--muted); font-size: 13px; padding: 30px 0; }
+  .empty.small { font-size: 12px; padding: 18px 0; }
 
   /* ── Modal ── */
   .modal-bg {
-    position: fixed; inset: 0;
-    background: rgba(0,0,0,0.7);
-    display: none; place-items: center;
-    z-index: 100;
+    position: fixed; inset: 0; background: rgba(0,0,0,0.7);
+    display: none; place-items: center; z-index: 100;
   }
   .modal-bg.show { display: grid; }
   .modal {
     background: var(--card); border: 1px solid var(--border); border-radius: 16px;
-    width: 380px; padding: 28px;
-    box-shadow: 0 12px 48px rgba(0,0,0,0.5);
-    display: flex;
-    flex-direction: column;
-    gap: 20px;
+    width: 380px; padding: 26px; box-shadow: 0 20px 60px rgba(0,0,0,0.6);
+    display: flex; flex-direction: column; gap: 18px;
   }
-  .modal-title { font-size: 16px; font-weight: 600; }
+  .modal-title { font-size: 16px; font-weight: 700; }
   .modal-row {
     display: flex; justify-content: space-between; align-items: center;
     padding: 10px 0; border-bottom: 1px solid var(--border);
   }
   .modal-row:last-of-type { border-bottom: none; }
   .modal-row label { font-size: 13px; color: var(--text); }
-  
+
   .toggle { position: relative; display: inline-block; width: 40px; height: 22px; }
   .toggle input { opacity: 0; width: 0; height: 0; }
   .toggle-track {
     position: absolute; cursor: pointer; inset: 0;
-    background: #2a2c30; transition: .2s; border-radius: 34px;
-    border: 1px solid var(--border);
+    background: #2a2c33; transition: .2s; border-radius: 34px; border: 1px solid var(--border);
   }
   .toggle-track:before {
     position: absolute; content: ""; height: 14px; width: 14px; left: 3px; bottom: 3px;
     background: var(--muted); transition: .2s; border-radius: 50%;
   }
-  input:checked + .toggle-track { background: var(--accent); }
-  input:checked + .toggle-track:before {
-    transform: translateX(18px); background: var(--accent-text);
-  }
+  input:checked + .toggle-track { background: linear-gradient(140deg, var(--accent), var(--accent2)); border-color: transparent; }
+  input:checked + .toggle-track:before { transform: translateX(18px); background: #fff; }
 
   .btn-modal-close {
-    width: 100%; background: var(--border); border: 1px solid var(--border-hover);
-    color: var(--text); padding: 10px; border-radius: 8px; cursor: pointer;
-    font-size: 12px; font-weight: 500; transition: all 0.15s ease;
-    margin-top: 10px;
+    width: 100%; background: var(--card2); border: 1px solid var(--border-hover);
+    color: var(--text); padding: 11px; border-radius: 9px; cursor: pointer;
+    font-size: 12.5px; font-weight: 600; transition: all 0.15s ease; margin-top: 6px;
   }
-  .btn-modal-close:hover { background: var(--border-hover); }
+  .btn-modal-close:hover { background: var(--border); }
 
   select {
-    background: var(--bg); border: 1px solid var(--border); color: var(--text);
-    border-radius: 6px; padding: 6px 12px; font-size: 13px; cursor: pointer;
+    background: var(--panel); border: 1px solid var(--border); color: var(--text);
+    border-radius: 7px; padding: 6px 12px; font-size: 13px; cursor: pointer;
     outline: none; font-family: inherit; transition: border-color 0.2s;
   }
-  select:focus { border-color: var(--border-hover); }
+  select:focus { border-color: var(--accent); }
 
   /* ── Toast ── */
   #toast {
@@ -305,64 +263,81 @@
     background: var(--text); color: var(--bg);
     font-size: 12px; font-weight: 600;
     padding: 10px 20px; border-radius: 24px;
-    box-shadow: 0 6px 20px rgba(0,0,0,0.35);
-    opacity: 0; transition: opacity 0.2s, bottom 0.2s; pointer-events: none;
-    z-index: 1000;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+    opacity: 0; transition: opacity 0.2s, bottom 0.2s; pointer-events: none; z-index: 1000;
   }
   #toast.show { opacity: 1; bottom: 30px; }
+
+  @media (max-width: 720px) {
+    .side { width: 210px; }
+  }
 </style>
 </head>
 <body>
 
-  <header>
-    <div class="logo">S</div>
+  <!-- Sidebar -->
+  <aside class="side">
     <div class="brand">
-      <h1 id="app-title">Stash</h1>
-      <span class="sub" id="app-subtitle">เก็บแอปไว้ก่อน เปิดคืนทีหลัง</span>
+      <div class="logo"><svg viewBox="0 0 200 210" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M36 140C36 66 60 26 100 26C140 26 164 66 164 140L164 170C158 186 142 186 132 170C123 186 109 186 100 170C91 186 77 186 68 170C59 186 44 186 36 170Z" fill="#ffffff" stroke="#c2c2c6" stroke-width="7" stroke-linejoin="round"/><ellipse cx="76" cy="92" rx="14" ry="17" fill="#17181f"/><ellipse cx="124" cy="92" rx="14" ry="17" fill="#17181f"/><circle cx="82" cy="85" r="3.6" fill="#fff"/><circle cx="130" cy="85" r="3.6" fill="#fff"/></svg></div>
+      <div>
+        <h1 id="app-title">Stash</h1>
+        <div class="sub" id="app-subtitle">เก็บแอปไว้ก่อน เปิดคืนทีหลัง</div>
+      </div>
     </div>
-    <div class="spacer"></div>
-    <button class="icon-btn" id="support-btn" title="เลี้ยงกาแฟผู้พัฒนา" style="margin-right:8px;">☕</button>
-    <button class="icon-btn" id="open-settings">⚙</button>
-  </header>
 
-  <div class="content">
-    <!-- Open apps section -->
+    <nav class="nav">
+      <button class="nav-item on" id="nav-home">
+        <svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>
+        <span>หน้าหลัก</span>
+      </button>
+      <button class="nav-item" id="open-settings">
+        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.6 1.6 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.6 1.6 0 0 0-2.7 1.1V21a2 2 0 0 1-4 0v-.1A1.6 1.6 0 0 0 6.6 19l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1A1.6 1.6 0 0 0 4.9 15H4.8a2 2 0 0 1 0-4h.1a1.6 1.6 0 0 0 1.5-2.7l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1A1.6 1.6 0 0 0 12 4.9V4.8a2 2 0 0 1 4 0v.1a1.6 1.6 0 0 0 2.7 1.1l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.6 1.6 0 0 0 1.1 2.7h.1a2 2 0 0 1 0 4h-.1"/></svg>
+        <span id="nav-settings">ตั้งค่า</span>
+      </button>
+    </nav>
+
+    <div class="side-label" id="sec-saved-sessions">เซสชันที่เก็บไว้</div>
+    <div class="sessions" id="sessions">
+      <div class="empty small" id="empty-sessions-txt">ยังไม่มีเซสชันที่เก็บไว้</div>
+    </div>
+
+    <div class="side-foot">
+      <button class="foot-btn" id="support-btn"><span>☕</span><span id="support-label">เลี้ยงกาแฟผู้พัฒนา</span></button>
+    </div>
+  </aside>
+
+  <!-- Main -->
+  <main class="main">
+    <div class="main-head">
+      <h2 id="main-title">หน้าหลัก</h2>
+      <div class="desc" id="main-desc">เลือกแอปที่เปิดอยู่ แล้วเก็บเป็นเซสชันไว้เปิดคืนทีหลัง</div>
+    </div>
+
     <section>
-      <div class="section-header">
-        <span class="section-title" id="sec-open-apps">แอปที่เปิดอยู่ตอนนี้</span>
-        <div class="section-links">
+      <div class="sec-head">
+        <span class="sec-title" id="sec-open-apps">แอปที่เปิดอยู่ตอนนี้</span>
+        <div class="sec-links">
           <span id="sel-all">เลือกทั้งหมด</span>
           <span id="sel-none">ไม่เลือกเลย</span>
         </div>
       </div>
-      <div class="card">
-        <div class="app-list" id="app-list">
-          <div class="empty" id="scanning-txt">กำลังแสกนหาแอป...</div>
-        </div>
-        <div class="card-actions">
-          <input type="text" id="name" placeholder="ตั้งชื่อเซสชัน (ไม่บังคับ)" maxlength="60" />
-          <button class="btn-primary" id="stash-btn" disabled>📥 เก็บแอปที่เลือก แล้วปิด</button>
-        </div>
-      </div>
-    </section>
 
-    <!-- Sessions section -->
-    <section>
-      <div class="section-header">
-        <span class="section-title" id="sec-saved-sessions">เซสชันที่เก็บไว้</span>
+      <div class="tiles" id="app-list">
+        <div class="empty" id="scanning-txt">กำลังแสกนหาแอป...</div>
       </div>
-      <div class="sessions" id="sessions">
-        <div class="empty" id="empty-sessions-txt">ยังไม่มีเซสชันที่เก็บไว้</div>
+
+      <div class="capture">
+        <input type="text" id="name" placeholder="ตั้งชื่อเซสชัน (ไม่บังคับ)" maxlength="60" />
+        <button class="btn-primary" id="stash-btn" disabled>📥 เก็บแอปที่เลือก แล้วปิด</button>
       </div>
     </section>
-  </div>
+  </main>
 
   <!-- Settings -->
   <div class="modal-bg" id="settings-modal">
     <div class="modal">
       <div class="modal-title" id="settings-title">ตั้งค่า</div>
-      
-      <!-- Autostart -->
+
       <div class="modal-row">
         <label id="lbl-autostart">เปิดพร้อมเปิดเครื่อง</label>
         <label class="toggle">
@@ -371,7 +346,6 @@
         </label>
       </div>
 
-      <!-- Language Selection -->
       <div class="modal-row">
         <label id="lbl-lang">ภาษา / Language</label>
         <select id="lang-select">
@@ -400,7 +374,12 @@
 
   const TRANSLATIONS = {
     th: {
-      subtitle: "เก็บแอปไว้ก่อน เปิดคืนทีหลัง",
+      subtitle: "work buddy",
+      mainTitle: "หน้าหลัก",
+      mainDesc: "เลือกแอปที่เปิดอยู่ แล้วเก็บเป็นเซสชันไว้เปิดคืนทีหลัง",
+      navHome: "หน้าหลัก",
+      navSettings: "ตั้งค่า",
+      supportLabel: "เลี้ยงกาแฟผู้พัฒนา",
       secOpenApps: "แอปที่เปิดอยู่ตอนนี้",
       selAll: "เลือกทั้งหมด",
       selNone: "ไม่เลือกเลย",
@@ -433,7 +412,12 @@
       unitApps: "แอป"
     },
     en: {
-      subtitle: "Stash active apps, restore later",
+      subtitle: "work buddy",
+      mainTitle: "Home",
+      mainDesc: "Pick the apps you have open and stash them into a session to restore later.",
+      navHome: "Home",
+      navSettings: "Settings",
+      supportLabel: "Buy me a coffee",
       secOpenApps: "Active Applications",
       selAll: "Select All",
       selNone: "Deselect All",
@@ -468,9 +452,7 @@
   };
 
   /* ── helpers ── */
-  function getT() {
-    return TRANSLATIONS[currentLang];
-  }
+  function getT() { return TRANSLATIONS[currentLang]; }
 
   function toast(msg, err = false) {
     const t = $("toast");
@@ -530,28 +512,18 @@
       return;
     }
     openApps.forEach((app, i) => {
-      const row = document.createElement("div");
-      row.className = "app-item";
-      row.addEventListener("click", e => {
-        if (e.target.tagName === "INPUT") return;
-        const c = row.querySelector("input");
-        c.checked = !c.checked;
-        openApps[i].selected = c.checked;
+      const tile = document.createElement("div");
+      tile.className = "tile" + (app.selected ? " sel" : "");
+      tile.title = app.title || app.exePath || "";
+      tile.addEventListener("click", () => {
+        openApps[i].selected = !openApps[i].selected;
+        tile.classList.toggle("sel", openApps[i].selected);
         updateBtn();
       });
 
-      // checkbox
-      const wrap = document.createElement("label");
-      wrap.className = "chk-wrap";
-      const chk = document.createElement("input");
-      chk.type = "checkbox";
-      chk.checked = app.selected;
-      chk.addEventListener("change", () => { openApps[i].selected = chk.checked; updateBtn(); });
-      const box = document.createElement("span");
-      box.className = "chk-box";
-      wrap.append(chk, box);
+      const chk = document.createElement("span");
+      chk.className = "tile-chk";
 
-      // icon
       const iconEl = document.createElement("div");
       iconEl.className = "app-icon";
       if (app.icon) {
@@ -563,20 +535,12 @@
         iconEl.textContent = app.name.charAt(0).toUpperCase();
       }
 
-      // info
-      const info = document.createElement("div");
-      info.className = "app-info";
       const nm = document.createElement("div");
-      nm.className = "app-name";
+      nm.className = "tile-nm";
       nm.textContent = app.name.replace(/\.exe$/i, "");
-      const ti = document.createElement("div");
-      ti.className = "app-title";
-      ti.textContent = app.title;
-      ti.title = app.exePath;
-      info.append(nm, ti);
 
-      row.append(wrap, iconEl, info);
-      list.appendChild(row);
+      tile.append(chk, iconEl, nm);
+      list.appendChild(tile);
     });
     updateBtn();
   }
@@ -585,9 +549,7 @@
     const n = openApps.filter(a => a.selected).length;
     const btn = $("stash-btn");
     btn.disabled = n === 0;
-    btn.textContent = n === 0
-      ? getT().stashBtnEmpty
-      : getT().stashBtnActive(n);
+    btn.textContent = n === 0 ? getT().stashBtnEmpty : getT().stashBtnActive(n);
   }
 
   /* ── sessions ── */
@@ -607,16 +569,13 @@
     const box = $("sessions");
     box.innerHTML = "";
     if (sessions.length === 0) {
-      box.innerHTML = `<div class="empty">${t.emptySessions}</div>`;
+      box.innerHTML = `<div class="empty small">${t.emptySessions}</div>`;
       return;
     }
     sessions.forEach(s => {
       const el = document.createElement("div");
       el.className = "session";
 
-      // top row
-      const top = document.createElement("div");
-      top.className = "session-top";
       const info = document.createElement("div");
       info.className = "session-info";
       const title = document.createElement("b");
@@ -625,10 +584,25 @@
       meta.textContent = `${s.apps.length} ${t.unitApps} · ${timeAgo(s.createdAt)}`;
       info.append(title, meta);
 
+      // tiny stacked icons
+      const stack = document.createElement("div");
+      stack.className = "stack";
+      s.apps.slice(0, 5).forEach(a => {
+        const d = document.createElement("span");
+        d.className = "mini";
+        if (a.icon) {
+          const img = document.createElement("img");
+          img.src = a.icon;
+          d.appendChild(img);
+        } else {
+          d.textContent = (a.name || "?").charAt(0).toUpperCase();
+        }
+        stack.appendChild(d);
+      });
+
       const btns = document.createElement("div");
       btns.className = "session-btns";
 
-      // เปิดคืน
       const openBtn = document.createElement("button");
       openBtn.className = "btn-ghost";
       openBtn.textContent = t.btnRestore;
@@ -638,7 +612,6 @@
         setTimeout(scan, 1500);
       });
 
-      // ปิดคืน (re-close)
       const closeBtn = document.createElement("button");
       closeBtn.className = "btn-ghost btn-close-again";
       closeBtn.textContent = t.btnCloseAgain;
@@ -648,7 +621,6 @@
         setTimeout(scan, 800);
       });
 
-      // ลบ
       const delBtn = document.createElement("button");
       delBtn.className = "btn-ghost btn-del";
       delBtn.textContent = "✕";
@@ -665,26 +637,7 @@
       });
 
       btns.append(openBtn, closeBtn, delBtn);
-      top.append(info, btns);
-      el.appendChild(top);
-
-      // app tags preview
-      const tags = document.createElement("div");
-      tags.className = "session-apps";
-      s.apps.forEach(a => {
-        const tag = document.createElement("span");
-        tag.className = "session-app-tag";
-        if (a.icon) {
-          const img = document.createElement("img");
-          img.src = a.icon;
-          tag.appendChild(img);
-        }
-        const txt = document.createTextNode(a.name.replace(/\.exe$/i, ""));
-        tag.appendChild(txt);
-        tags.appendChild(tag);
-      });
-      el.appendChild(tags);
-
+      el.append(info, stack, btns);
       box.appendChild(el);
     });
   }
@@ -702,30 +655,24 @@
     } catch (e) { toast(getT().toastError(e), true); }
   }
 
-  /* ── Language translation UI application ── */
+  /* ── Language ── */
   function applyLanguage() {
     const t = getT();
-    
-    // Header
     $("app-subtitle").textContent = t.subtitle;
-
-    // Section Titles
+    $("main-title").textContent = t.mainTitle;
+    $("main-desc").textContent = t.mainDesc;
+    $("nav-home").querySelector("span").textContent = t.navHome;
+    $("nav-settings").textContent = t.navSettings;
+    $("support-label").textContent = t.supportLabel;
     $("sec-open-apps").textContent = t.secOpenApps;
     $("sec-saved-sessions").textContent = t.secSavedSessions;
-    
-    // Links
     $("sel-all").textContent = t.selAll;
     $("sel-none").textContent = t.selNone;
-
-    // Placeholders
     $("name").placeholder = t.placeholder;
-
-    // Settings Modal
     $("settings-title").textContent = t.settingsTitle;
     $("lbl-autostart").textContent = t.lblAutostart;
     $("lbl-lang").textContent = t.lblLang;
     $("close-settings").textContent = t.btnClose;
-
     updateBtn();
   }
 
@@ -736,6 +683,7 @@
   $("sel-none").addEventListener("click", () => { openApps.forEach(a => a.selected = false); renderApps(); });
   $("open-settings").addEventListener("click", () => $("settings-modal").classList.add("show"));
   $("close-settings").addEventListener("click", () => $("settings-modal").classList.remove("show"));
+  $("settings-modal").addEventListener("click", e => { if (e.target === $("settings-modal")) $("settings-modal").classList.remove("show"); });
   $("autostart-toggle").addEventListener("change", async e => {
     try {
       await invoke("set_autostart_cmd", { enabled: e.target.checked });
@@ -743,7 +691,6 @@
     } catch (err) { toast(getT().toastError(err), true); e.target.checked = !e.target.checked; }
   });
 
-  // Language selection change
   $("lang-select").value = currentLang;
   $("lang-select").addEventListener("change", e => {
     currentLang = e.target.value;
@@ -753,7 +700,6 @@
     renderApps();
   });
 
-  // Refresh open apps every 5 seconds when window is focused
   window.addEventListener("focus", scan);
   setInterval(() => { if (document.hasFocus()) scan(); }, 5000);
 
