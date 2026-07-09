@@ -8,7 +8,7 @@
 
 เก็บทุกอย่างตรงหน้า กลับมาทำต่อในคลิกเดียว
 
-[![Version](https://img.shields.io/badge/version-0.3.0-7c3aed?style=flat-square)](https://github.com/StarchyBomb/Stash/releases)
+[![Version](https://img.shields.io/badge/version-0.3.1-7c3aed?style=flat-square)](https://github.com/StarchyBomb/Stash/releases)
 [![Platform](https://img.shields.io/badge/platform-Windows%20%7C%20macOS-0d1117?style=flat-square)](https://github.com/StarchyBomb/Stash)
 [![License](https://img.shields.io/badge/license-AGPL--3.0-30a46c?style=flat-square)](LICENSE)
 [![Language](https://img.shields.io/badge/language-EN%20%7C%20TH-a78bfa?style=flat-square)](https://github.com/StarchyBomb/Stash)
