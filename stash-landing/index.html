@@ -4,8 +4,9 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>Stash — เก็บทุกแอปตรงหน้า กลับมาทำต่อในคลิกเดียว</title>
+<meta name="description" content="Stash — บันทึกแอปและแท็บทั้งหมดเป็นเซสชัน เคลียร์จอเพื่อโฟกัส แล้วเปิดคืนในคลิกเดียว ฟรีและโอเพนซอร์ส" />
 <style>
-  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap');
 
   :root {
     --bg: #07080a;
@@ -15,771 +16,485 @@
     --border-hover: #2e313c;
     --text: #f3f4f6;
     --text-secondary: #9ca3af;
-    --muted: #64748b;
+    --muted: #6b7280;
     --accent: #ffffff;
     --accent-text: #07080a;
+    --violet: #a78bfa;
+    --violet2: #7c3aed;
     --success: #10b981;
     --danger: #ef4444;
+    --star: #f0b34a;
   }
-
   * { margin: 0; padding: 0; box-sizing: border-box; }
-  html { scroll-behavior: smooth; scroll-padding-top: 72px; }
+  html { scroll-behavior: smooth; scroll-padding-top: 96px; }
   body {
-    font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
-    background: var(--bg);
-    color: var(--text);
-    line-height: 1.6;
-    -webkit-font-smoothing: antialiased;
-    overflow-x: hidden;
-    position: relative;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", "Leelawadee UI", system-ui, sans-serif;
+    background: var(--bg); color: var(--text); line-height: 1.6;
+    -webkit-font-smoothing: antialiased; overflow-x: hidden;
   }
+  a { color: inherit; }
+  ::selection { background: rgba(167,139,250,.35); }
 
-  /* ── Background Glow ── */
-  .bg-glow {
-    position: absolute;
-    width: 600px;
-    height: 600px;
-    background: radial-gradient(circle, rgba(255, 255, 255, 0.03) 0%, rgba(0, 0, 0, 0) 70%);
-    top: -100px;
-    left: 50%;
-    transform: translateX(-50%);
-    pointer-events: none;
-    z-index: 0;
-  }
-
-  /* ── Navigation ── */
+  /* ── Floating nav ── */
   nav {
-    display: flex; align-items: center; justify-content: space-between;
-    padding: 16px 8%;
-    border-bottom: 1px solid var(--border);
-    position: fixed; top: 0; left: 0; right: 0;
-    background: rgba(7, 8, 10, 0.8);
-    backdrop-filter: blur(20px);
-    z-index: 1000;
+    position: fixed; top: 16px; left: 50%; transform: translateX(-50%);
+    display: flex; align-items: center; gap: 6px;
+    background: rgba(14,15,18,.72); backdrop-filter: blur(18px);
+    border: 1px solid var(--border); border-radius: 100px;
+    padding: 7px 7px 7px 8px; z-index: 1000;
+    box-shadow: 0 10px 34px rgba(0,0,0,.45);
+    transition: transform .38s cubic-bezier(.4,0,.2,1), opacity .38s ease;
+    max-width: calc(100vw - 24px);
   }
-  .nav-brand { display: flex; align-items: center; gap: 12px; }
-  .logo {
-    width: 32px; height: 32px; border-radius: 6px;
-    background: var(--accent);
-    display: grid; place-items: center;
-    font-weight: 800; font-size: 16px; color: var(--accent-text);
+  nav.hide { transform: translateX(-50%) translateY(-150%); opacity: 0; pointer-events: none; }
+  .nav-brand { display: flex; align-items: center; gap: 8px; padding: 4px 8px; }
+  .nav-brand .ghost { width: 24px; height: 24px; }
+  .nav-brand b { font-family: 'Plus Jakarta Sans', sans-serif; font-size: 15px; font-weight: 700; letter-spacing: -0.3px; }
+  .nav-div { width: 1px; height: 20px; background: var(--border); margin: 0 4px; }
+  .nav-links { display: flex; align-items: center; gap: 2px; }
+  .nav-links a { color: var(--text-secondary); text-decoration: none; font-size: 13px; font-weight: 500; padding: 8px 12px; border-radius: 100px; transition: all .15s; }
+  .nav-links a:hover { color: var(--text); background: var(--card); }
+  .star-pill {
+    display: inline-flex; align-items: center; gap: 6px; text-decoration: none;
+    font-size: 12.5px; font-weight: 600; color: var(--text);
+    background: var(--card); border: 1px solid var(--border);
+    padding: 7px 12px; border-radius: 100px; transition: all .15s;
   }
-  .brand-name { 
-    font-family: 'Plus Jakarta Sans', sans-serif;
-    font-size: 18px; font-weight: 700; letter-spacing: -0.5px; 
-  }
-  .nav-links { display: flex; gap: 32px; align-items: center; }
-  .nav-links a {
-    color: var(--text-secondary); text-decoration: none; font-size: 13.5px;
-    font-weight: 500; transition: color 0.2s ease;
-    cursor: pointer;
-  }
-  .nav-links a:hover { color: var(--text); }
-  .btn-nav-cta {
+  .star-pill:hover { border-color: var(--star); background: rgba(240,179,74,.08); }
+  .star-pill .st { color: var(--star); }
+  .star-pill b { font-variant-numeric: tabular-nums; }
+  .btn-nav {
     background: var(--accent); color: var(--accent-text);
-    padding: 8px 18px; border-radius: 6px; font-weight: 600;
-    font-size: 13px; border: none; cursor: pointer; text-decoration: none;
-    transition: opacity 0.2s ease;
+    padding: 8px 16px; border-radius: 100px; font-weight: 600; font-size: 13px;
+    border: none; cursor: pointer; font-family: inherit; transition: opacity .15s;
   }
-  .btn-nav-cta:hover { opacity: 0.9; }
+  .btn-nav:hover { opacity: .9; }
 
-  /* ── Hero (full-screen, monochrome) ── */
+  /* ── Hero ── */
   .hero {
-    position: relative;
-    min-height: 100vh;
-    min-height: 100dvh;
-    display: flex; flex-direction: column;
-    align-items: center; justify-content: center;
-    text-align: center;
-    padding: 110px 24px 90px;
-    overflow: hidden;
-    z-index: 1;
+    position: relative; min-height: 100vh; min-height: 100dvh;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    text-align: center; padding: 120px 24px 90px; overflow: hidden; z-index: 1;
   }
   .hero::before {
-    content: "";
-    position: absolute; inset: 0;
-    background: url('https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05?w=2000&q=80&auto=format&fit=crop') center center / cover no-repeat;
-    filter: grayscale(100%) contrast(1.05) brightness(0.5);
-    z-index: -2;
+    content: ""; position: absolute; inset: 0;
+    background: url('https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05?w=2000&q=80&auto=format&fit=crop') center/cover no-repeat;
+    filter: grayscale(100%) contrast(1.05) brightness(0.48); z-index: -2;
   }
   .hero::after {
-    content: "";
-    position: absolute; inset: 0;
-    background: linear-gradient(180deg, rgba(7,8,10,0.55) 0%, rgba(7,8,10,0.72) 55%, rgba(7,8,10,1) 100%);
-    z-index: -1;
+    content: ""; position: absolute; inset: 0;
+    background: linear-gradient(180deg, rgba(7,8,10,.5) 0%, rgba(7,8,10,.72) 55%, rgba(7,8,10,1) 100%); z-index: -1;
   }
-  .hero > * { max-width: 820px; }
+  .hero > * { max-width: 840px; }
   .hero-tag {
-    display: inline-flex;
-    align-items: center;
-    background: var(--surface); border: 1px solid var(--border);
-    padding: 6px 14px; border-radius: 30px; font-size: 11px;
-    font-weight: 600; text-transform: uppercase; letter-spacing: 1px;
-    color: var(--text-secondary); margin-bottom: 24px;
+    display: inline-flex; align-items: center; gap: 8px;
+    background: rgba(14,15,18,.6); border: 1px solid var(--border);
+    padding: 6px 15px; border-radius: 30px; font-size: 11.5px; font-weight: 600;
+    letter-spacing: .06em; text-transform: uppercase; color: var(--text-secondary); margin-bottom: 26px;
   }
-  h2 {
-    font-family: 'Plus Jakarta Sans', sans-serif;
-    font-size: 56px; font-weight: 800; line-height: 1.15;
-    letter-spacing: -1.8px; margin-bottom: 24px;
-    background: linear-gradient(180deg, #ffffff 30%, #a1a1aa 100%);
+  .hero-tag .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--success); box-shadow: 0 0 0 3px rgba(16,185,129,.2); }
+  h1 {
+    font-family: 'Plus Jakarta Sans', sans-serif; font-size: clamp(34px, 6vw, 60px);
+    font-weight: 800; line-height: 1.1; letter-spacing: -0.03em; margin-bottom: 22px;
+    background: linear-gradient(180deg, #fff 35%, #9ca3af 100%);
     -webkit-background-clip: text; -webkit-text-fill-color: transparent;
   }
-  .hero p {
-    font-size: 18px; color: var(--text-secondary);
-    max-width: 680px; margin: 0 auto 40px;
-    line-height: 1.6;
+  .hero p { font-size: clamp(15px, 1.7vw, 18px); color: var(--text-secondary); max-width: 640px; margin: 0 auto 36px; }
+  .hero-actions { display: flex; gap: 14px; justify-content: center; flex-wrap: wrap; }
+  .btn {
+    display: inline-flex; align-items: center; justify-content: center; gap: 9px;
+    padding: 14px 28px; border-radius: 10px; font-weight: 600; font-size: 14.5px;
+    text-decoration: none; cursor: pointer; border: none; font-family: inherit; transition: all .18s;
   }
-  .hero-actions { display: flex; gap: 16px; justify-content: center; }
-  .btn-primary {
-    background: var(--accent); color: var(--accent-text);
-    padding: 14px 30px; border-radius: 8px; font-weight: 600;
-    font-size: 14px; text-decoration: none; transition: opacity 0.2s;
-    cursor: pointer;
-  }
-  .btn-primary:hover { opacity: 0.9; }
-  .btn-secondary {
-    background: var(--surface); color: var(--text);
-    border: 1px solid var(--border);
-    padding: 14px 30px; border-radius: 8px; font-weight: 600;
-    font-size: 14px; text-decoration: none; transition: all 0.2s;
-    cursor: pointer;
-  }
-  .btn-secondary:hover { border-color: var(--border-hover); background: var(--card); }
+  .btn svg { width: 17px; height: 17px; }
+  .btn-primary { background: var(--accent); color: var(--accent-text); }
+  .btn-primary:hover { opacity: .9; transform: translateY(-1px); }
+  .btn-secondary { background: rgba(20,22,29,.7); color: var(--text); border: 1px solid var(--border-hover); }
+  .btn-secondary:hover { background: var(--card); transform: translateY(-1px); }
 
-  /* ── Showcase Mockup ── */
-  .showcase {
-    max-width: 900px; margin: 0 auto 120px;
-    padding: 0 24px;
-    position: relative;
-    z-index: 1;
-  }
-  .mockup-window {
-    background: var(--surface); border: 1px solid var(--border);
-    border-radius: 16px; overflow: hidden;
-    box-shadow: 0 24px 64px rgba(0,0,0,0.7);
-  }
-  .window-header {
-    background: #0b0c0e; padding: 14px 22px;
-    display: flex; align-items: center; gap: 6px;
-    border-bottom: 1px solid var(--border);
-  }
-  .dot { width: 10px; height: 10px; border-radius: 50%; }
-  .dot-red { background: #ff5f56; }
-  .dot-yellow { background: #ffbd2e; }
-  .dot-green { background: #27c93f; }
-  .window-title { margin-left: 14px; font-size: 11px; color: var(--muted); font-weight: 500; }
-  
-  /* ── Interactive Demo ── */
-  .demo-caption { text-align: center; margin-bottom: 22px; }
+  /* ── Demo: MacBook ── */
+  .showcase { max-width: 1000px; margin: -40px auto 110px; padding: 0 24px; position: relative; z-index: 2; }
+  .demo-caption { text-align: center; margin-bottom: 26px; }
   .demo-badge {
-    display: inline-flex; align-items: center; gap: 7px;
-    background: var(--surface); border: 1px solid var(--border);
-    color: var(--success); font-size: 11px; font-weight: 700;
-    text-transform: uppercase; letter-spacing: 1px;
-    padding: 6px 14px; border-radius: 30px; margin-bottom: 12px;
+    display: inline-flex; align-items: center; gap: 7px; background: var(--surface); border: 1px solid var(--border);
+    color: var(--violet); font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .1em;
+    padding: 6px 14px; border-radius: 30px; margin-bottom: 14px;
   }
-  .demo-caption p { color: var(--text-secondary); font-size: 14px; max-width: 580px; margin: 0 auto; }
+  .demo-caption p { color: var(--text-secondary); font-size: 14.5px; max-width: 600px; margin: 0 auto; }
 
-  .demo-body { display: flex; background: #07080a; min-height: 380px; }
+  .laptop { position: relative; }
+  .screen {
+    background: #05060a; border: 12px solid #16181f; border-radius: 20px; overflow: hidden;
+    box-shadow: 0 40px 90px -20px rgba(0,0,0,.85), inset 0 0 0 1px rgba(255,255,255,.03);
+  }
+  .laptop-base {
+    height: 14px; width: 112%; margin-left: -6%;
+    background: linear-gradient(180deg, #23252e, #14151a); border-radius: 0 0 16px 16px; position: relative;
+    box-shadow: 0 18px 30px -10px rgba(0,0,0,.7);
+  }
+  .laptop-base::after { content: ""; position: absolute; top: 0; left: 50%; transform: translateX(-50%); width: 130px; height: 7px; background: #0b0c10; border-radius: 0 0 8px 8px; }
 
-  /* Left: simulated macOS desktop */
-  .demo-desktop {
-    flex: 1.5; position: relative; padding: 16px 18px;
-    background: radial-gradient(120% 80% at 50% -10%, rgba(255,255,255,0.05), transparent 60%), #0a0b0e;
-    border-right: 1px solid var(--border);
-    display: flex; flex-direction: column;
+  .os { background: linear-gradient(160deg, #0b0d14, #07080b); display: flex; flex-direction: column; height: 540px; }
+  .menubar {
+    height: 30px; flex-shrink: 0; display: flex; align-items: center; gap: 8px; padding: 0 14px;
+    background: rgba(0,0,0,.35); border-bottom: 1px solid rgba(255,255,255,.05); font-size: 12px; color: var(--text-secondary);
   }
-  .desktop-topbar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; }
-  .desktop-title { font-size: 12px; color: var(--text-secondary); font-weight: 600; }
-  .desktop-tools { display: flex; gap: 12px; }
-  .desktop-tools span { font-size: 11.5px; color: var(--muted); cursor: pointer; transition: color .15s; }
-  .desktop-tools span:hover { color: var(--text); }
-  .desktop-apps {
-    display: grid; grid-template-columns: repeat(auto-fill, minmax(84px, 1fr));
-    gap: 12px; align-content: start; flex: 1;
-  }
-  .app-tile {
-    position: relative; cursor: pointer; user-select: none;
-    background: var(--surface); border: 1px solid var(--border); border-radius: 12px;
-    padding: 14px 8px 10px; display: flex; flex-direction: column; align-items: center; gap: 8px;
-    transition: transform .18s ease, border-color .15s;
-    animation: tilePop .28s ease backwards;
-  }
-  .app-tile:hover { border-color: var(--border-hover); transform: translateY(-2px); }
-  .app-tile .app-ico {
-    width: 40px; height: 40px; border-radius: 11px; display: grid; place-items: center;
-    font-size: 22px; background: var(--card); border: 1px solid var(--border);
-  }
-  .app-tile .app-nm { font-size: 11px; color: var(--text-secondary); text-align: center; }
-  .app-tile .app-chk {
-    position: absolute; top: 7px; right: 7px; width: 17px; height: 17px; border-radius: 5px;
-    border: 1.5px solid var(--muted); background: transparent; display: grid; place-items: center; transition: all .15s;
-  }
-  .app-tile.sel .app-chk { background: var(--accent); border-color: var(--accent); }
-  .app-tile.sel .app-chk::after { content: "✓"; color: var(--accent-text); font-size: 11px; font-weight: 800; }
-  .app-tile.stashing { animation: tileStash .35s ease forwards; }
-  @keyframes tilePop { from { opacity: 0; transform: scale(.85); } to { opacity: 1; transform: scale(1); } }
-  @keyframes tileStash { to { opacity: 0; transform: translateY(14px) scale(.8); } }
+  .menubar .ghost { width: 15px; height: 15px; }
+  .menubar b { color: var(--text); font-weight: 600; font-size: 12px; }
+  .menubar .mb-item { font-size: 12px; }
+  .menubar .spacer { flex: 1; }
+  .menubar .mb-right { display: flex; gap: 12px; align-items: center; font-size: 12px; }
 
-  .desktop-empty {
-    display: none; flex: 1; flex-direction: column; align-items: center; justify-content: center;
-    text-align: center; color: var(--text-secondary); font-size: 15px; font-weight: 600; gap: 6px; line-height: 1.7;
-  }
-  .desktop-empty .big { font-size: 34px; }
-  .desktop-empty small { font-weight: 400; font-size: 12px; color: var(--muted); max-width: 230px; }
-  .demo-desktop.empty .desktop-apps { display: none; }
-  .demo-desktop.empty .desktop-empty { display: flex; }
-  .demo-desktop.empty .desktop-tools { visibility: hidden; }
+  .os-body { flex: 1; display: flex; min-height: 0; }
 
-  /* Right: the real Stash app panel */
-  .demo-panel { flex: 1; min-width: 240px; max-width: 320px; padding: 18px; background: var(--surface); display: flex; flex-direction: column; }
-  .panel-head { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; }
-  .panel-logo {
-    width: 34px; height: 34px; border-radius: 9px; display: grid; place-items: center;
-    background: linear-gradient(135deg, #a78bfa, #7c3aed); font-weight: 800; color: #fff; font-size: 16px;
+  /* browser */
+  .browser { flex: 1; min-width: 0; display: flex; flex-direction: column; background: #0e0f12; border-right: 1px solid rgba(255,255,255,.05); }
+  .tabbar { display: flex; gap: 5px; padding: 8px 8px 0; overflow-x: auto; scrollbar-width: none; background: #121317; }
+  .tabbar::-webkit-scrollbar { display: none; }
+  .tab {
+    display: flex; align-items: center; gap: 7px; flex-shrink: 0; max-width: 168px;
+    background: #191b21; border: 1px solid transparent; border-bottom: none;
+    border-radius: 9px 9px 0 0; padding: 8px 11px; font-size: 12px; color: var(--text-secondary);
+    cursor: pointer; transition: background .15s, color .15s; animation: tabin .25s ease backwards;
   }
-  .panel-head b { font-size: 15px; display: block; }
-  .panel-head span { font-size: 11px; color: var(--muted); }
-  #sess-name {
-    width: 100%; background: var(--card); border: 1px solid var(--border); color: var(--text);
-    font-size: 13px; font-family: inherit; padding: 9px 11px; border-radius: 8px; margin-bottom: 8px; outline: none;
-  }
-  #sess-name:focus { border-color: #7c3aed; }
-  .panel-stash {
-    width: 100%; border: none; border-radius: 8px; cursor: pointer;
-    background: linear-gradient(135deg, #a78bfa, #7c3aed); color: #fff;
-    font-size: 13.5px; font-weight: 700; font-family: inherit; padding: 11px; transition: opacity .15s, transform .1s;
-  }
-  .panel-stash:hover { opacity: .92; }
-  .panel-stash:active { transform: scale(.98); }
-  .panel-stash:disabled { opacity: .4; cursor: default; }
-  .panel-label {
-    font-size: 10.5px; color: var(--muted); font-weight: 600; text-transform: uppercase;
-    letter-spacing: 1px; margin: 16px 2px 8px;
-  }
-  .sess-list { display: flex; flex-direction: column; gap: 8px; overflow-y: auto; max-height: 230px; }
-  .sess-card {
-    background: var(--card); border: 1px solid var(--border); border-radius: 10px;
-    padding: 9px 11px; display: flex; align-items: center; gap: 8px; animation: tilePop .25s ease;
-  }
-  .sess-card .s-info { flex: 1; min-width: 0; }
-  .sess-card .s-info b { font-size: 12.5px; display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .sess-card .s-info span { font-size: 10.5px; color: var(--muted); }
-  .sess-card button {
-    border: 1px solid var(--border); border-radius: 7px; background: #1f2128; color: var(--text);
-    font-size: 11.5px; font-family: inherit; padding: 5px 9px; cursor: pointer; flex-shrink: 0; transition: border-color .15s;
-  }
-  .sess-card button:hover { border-color: #7c3aed; }
-  .sess-card .s-del { color: var(--danger); padding: 5px 7px; }
-  .sess-empty { color: var(--muted); font-size: 12px; text-align: center; padding: 14px 0; }
+  .tab .fav { font-size: 13px; }
+  .tab .tt { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .tab .x { margin-left: 2px; opacity: .5; font-size: 12px; }
+  .tab.on { background: #0e0f12; color: var(--text); }
+  .tab:hover:not(.on) { background: #20222a; }
+  @keyframes tabin { from { opacity: 0; transform: translateY(-6px); } to { opacity: 1; transform: none; } }
+  .addr { display: flex; align-items: center; gap: 9px; padding: 8px 14px; background: #0e0f12; border-bottom: 1px solid rgba(255,255,255,.05); }
+  .addr .pill { flex: 1; background: #191b21; border-radius: 8px; padding: 6px 12px; font-size: 11.5px; color: var(--muted); display: flex; align-items: center; gap: 7px; }
+  .addr .pill svg { width: 12px; height: 12px; opacity: .6; }
+  .viewport { flex: 1; overflow: hidden; position: relative; }
+  .page { position: absolute; inset: 0; display: flex; flex-direction: column; animation: fade .3s ease; }
+  @keyframes fade { from { opacity: 0; } to { opacity: 1; } }
+  .page-hero { padding: 26px 28px 22px; }
+  .page-hero .eyebrow { font-size: 11px; text-transform: uppercase; letter-spacing: .12em; font-weight: 700; }
+  .page-hero h4 { font-family: 'Plus Jakarta Sans', sans-serif; font-size: 22px; font-weight: 700; margin-top: 8px; letter-spacing: -.02em; }
+  .page-body { padding: 0 28px; display: flex; flex-direction: column; gap: 11px; }
+  .ln { height: 9px; border-radius: 5px; background: #1a1c22; }
+  .page.clean { align-items: center; justify-content: center; text-align: center; gap: 8px; }
+  .page.clean .big { font-size: 40px; }
+  .page.clean h4 { font-family: 'Plus Jakarta Sans', sans-serif; font-size: 20px; font-weight: 700; }
+  .page.clean p { color: var(--muted); font-size: 13px; max-width: 260px; }
 
-  /* ── Features & Use Cases ── */
-  .section {
-    padding: 100px 8%;
-    border-top: 1px solid var(--border);
-    position: relative;
-    z-index: 1;
+  /* stash app */
+  .stash-app { width: 232px; flex-shrink: 0; background: #101219; display: flex; flex-direction: column; padding: 14px 12px; }
+  .sa-head { display: flex; align-items: center; gap: 9px; padding: 4px 6px 14px; }
+  .sa-head .ghost { width: 26px; height: 26px; filter: drop-shadow(0 3px 6px rgba(0,0,0,.5)); }
+  .sa-head b { font-size: 14px; font-weight: 700; }
+  .sa-head span { font-size: 10px; color: var(--muted); display: block; }
+  .sa-label { font-size: 9.5px; font-weight: 600; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); margin: 4px 6px 9px; }
+  .sa-list { display: flex; flex-direction: column; gap: 7px; flex: 1; }
+  .sa-item {
+    background: var(--card); border: 1px solid var(--border); border-radius: 11px; padding: 10px 11px; cursor: pointer;
+    transition: border-color .15s, background .15s;
   }
-  .section-headline {
-    text-align: center; margin-bottom: 70px;
+  .sa-item:hover { border-color: var(--border-hover); }
+  .sa-item.on { border-color: var(--violet); background: linear-gradient(180deg, rgba(167,139,250,.12), transparent); }
+  .sa-item .r1 { display: flex; align-items: center; gap: 8px; }
+  .sa-item .ico { font-size: 15px; }
+  .sa-item .nm { font-size: 12.5px; font-weight: 600; flex: 1; }
+  .sa-item .meta { font-size: 10.5px; color: var(--muted); margin: 6px 0 0 23px; }
+  .sa-item .op { font-size: 10.5px; color: var(--violet); font-weight: 600; margin-left: 23px; }
+  .sa-stash {
+    margin-top: 10px; border: none; border-radius: 9px; cursor: pointer; font-family: inherit;
+    background: linear-gradient(135deg, var(--violet), var(--violet2)); color: #fff; font-size: 12.5px; font-weight: 700; padding: 11px; transition: opacity .15s, transform .1s;
   }
-  .section-headline h3 {
-    font-family: 'Plus Jakarta Sans', sans-serif;
-    font-size: 36px; font-weight: 755; letter-spacing: -1px; margin-bottom: 16px;
-  }
-  .section-headline p {
-    color: var(--text-secondary); font-size: 16px;
-    max-width: 540px; margin: 0 auto;
-  }
+  .sa-stash:hover { opacity: .92; }
+  .sa-stash:active { transform: scale(.98); }
+  .sa-stash:disabled { opacity: .4; cursor: default; }
 
-  .grid-3 {
-    display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-    gap: 32px;
-  }
-  .feature-card {
-    background: var(--surface); border: 1px solid var(--border);
-    padding: 36px; border-radius: 14px;
-    transition: all 0.25s ease;
-    cursor: pointer;
-  }
-  .feature-card:hover { 
-    border-color: var(--border-hover); 
-    transform: translateY(-2px);
-  }
-  .feature-icon-wrapper {
-    width: 48px; height: 48px; border-radius: 10px;
-    background: var(--card); border: 1px solid var(--border);
-    display: grid; place-items: center;
-    margin-bottom: 24px;
-    color: var(--text);
-  }
-  .feature-card h4 {
-    font-size: 18px; font-weight: 600; margin-bottom: 14px;
-  }
-  .feature-card p {
-    font-size: 14px; color: var(--text-secondary);
-    line-height: 1.6;
-  }
-
-  /* ── Pricing Tiers ── */
-  .pricing-grid {
-    display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-    gap: 32px; max-width: 1020px; margin: 0 auto;
-  }
-  .pricing-card {
-    background: var(--surface); border: 1px solid var(--border);
-    padding: 48px 36px; border-radius: 16px;
-    display: flex; flex-direction: column;
-    position: relative;
-    transition: border-color 0.25s;
-  }
-  .pricing-card:hover { border-color: var(--border-hover); }
-  .pricing-card.premium {
-    border-color: var(--text-secondary);
-  }
-  .pricing-badge {
-    position: absolute; top: 20px; right: 24px;
-    background: var(--text); border: 1px solid var(--text);
-    font-size: 10px; color: var(--bg);
-    padding: 4px 10px; border-radius: 20px;
-    text-transform: uppercase; font-weight: 700;
-    letter-spacing: 0.5px;
-  }
-  .tier-name {
-    font-size: 12px; text-transform: uppercase; letter-spacing: 1.5px;
-    color: var(--text-secondary); margin-bottom: 16px; font-weight: 600;
-  }
-  .price {
-    font-family: 'Plus Jakarta Sans', sans-serif;
-    font-size: 42px; font-weight: 800; color: var(--text);
-    margin-bottom: 12px; display: flex; align-items: baseline;
-  }
-  .price span { font-size: 15px; font-weight: 400; color: var(--text-secondary); margin-left: 6px; }
-  .pricing-card p { font-size: 13.5px; color: var(--text-secondary); margin-bottom: 28px; }
-  
-  .pricing-features {
-    list-style: none; margin-bottom: 40px; flex: 1;
-  }
-  .pricing-features li {
-    font-size: 13.5px; color: var(--text); margin-bottom: 14px;
-    display: flex; align-items: center; gap: 10px;
-  }
-  .pricing-features li svg {
-    flex-shrink: 0; color: var(--success);
-  }
-
-  .btn-pricing {
-    width: 100%; display: block; text-align: center;
-    background: var(--card); color: var(--text);
-    border: 1px solid var(--border); padding: 12px;
-    border-radius: 8px; text-decoration: none; font-weight: 600;
-    font-size: 13.5px; transition: all 0.2s ease;
-    cursor: pointer;
-  }
-  .btn-pricing:hover { border-color: var(--border-hover); background: var(--border); }
-  .premium .btn-pricing {
-    background: var(--accent); color: var(--accent-text); border: none;
-  }
-  .premium .btn-pricing:hover { opacity: 0.9; }
-
-  /* ── Installation Guide ── */
-  .guide-container {
-    max-width: 720px; margin: 0 auto;
-    background: var(--surface); border: 1px solid var(--border);
-    border-radius: 16px; padding: 40px;
-  }
-  .step-row {
-    display: flex; gap: 24px; margin-bottom: 32px;
-  }
-  .step-row:last-child { margin-bottom: 0; }
-  .step-num {
-    width: 32px; height: 32px; border-radius: 50%;
-    background: var(--card); border: 1px solid var(--border);
-    display: grid; place-items: center;
-    font-size: 13px; font-weight: 700; flex-shrink: 0;
-  }
-  .step-desc h5 { font-size: 16px; font-weight: 600; margin-bottom: 6px; }
-  .step-desc p { font-size: 14px; color: var(--text-secondary); line-height: 1.6; }
-
-  /* ── Media images (Unsplash) ── */
-  .card-media {
-    width: 100%; height: 150px; border-radius: 10px;
-    object-fit: cover; margin-bottom: 22px;
-    border: 1px solid var(--border);
-    filter: grayscale(15%) brightness(0.92);
-    transition: filter 0.25s ease;
-  }
+  /* ── Sections ── */
+  .section { padding: 100px 8%; border-top: 1px solid var(--border); position: relative; z-index: 1; }
+  .section-headline { text-align: center; margin-bottom: 64px; }
+  .section-headline h2 { font-family: 'Plus Jakarta Sans', sans-serif; font-size: clamp(26px, 3.6vw, 36px); font-weight: 750; letter-spacing: -0.03em; margin-bottom: 14px; }
+  .section-headline p { color: var(--text-secondary); font-size: 16px; max-width: 540px; margin: 0 auto; }
+  .grid-3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 28px; }
+  .feature-card { background: var(--surface); border: 1px solid var(--border); padding: 34px; border-radius: 16px; transition: all .25s; }
+  .feature-card:hover { border-color: var(--border-hover); transform: translateY(-3px); }
+  .fi { width: 46px; height: 46px; border-radius: 11px; background: var(--card); border: 1px solid var(--border); display: grid; place-items: center; margin-bottom: 22px; }
+  .fi svg { width: 20px; height: 20px; }
+  .feature-card h3 { font-size: 18px; font-weight: 650; margin-bottom: 12px; }
+  .feature-card p { font-size: 14px; color: var(--text-secondary); }
+  .card-media { width: 100%; height: 150px; border-radius: 12px; object-fit: cover; margin-bottom: 22px; border: 1px solid var(--border); filter: grayscale(15%) brightness(.92); transition: filter .25s; }
   .feature-card:hover .card-media { filter: grayscale(0%) brightness(1); }
 
-  .split {
-    display: grid; grid-template-columns: 1fr 1fr;
-    gap: 48px; align-items: center; max-width: 1020px; margin: 0 auto;
-  }
-  .split img {
-    width: 100%; border-radius: 16px; border: 1px solid var(--border);
-    box-shadow: 0 24px 64px rgba(0,0,0,0.6);
-    filter: grayscale(10%);
-  }
-  .split h3 {
-    font-family: 'Plus Jakarta Sans', sans-serif;
-    font-size: 30px; font-weight: 700; letter-spacing: -0.8px; margin-bottom: 18px;
-  }
-  .split p { color: var(--text-secondary); font-size: 15px; margin-bottom: 16px; }
-  .split ul { list-style: none; }
-  .split li {
-    font-size: 14px; color: var(--text); margin-bottom: 12px;
-    display: flex; align-items: flex-start; gap: 10px;
-  }
-  .split li svg { flex-shrink: 0; color: var(--success); margin-top: 3px; }
+  .split { display: grid; grid-template-columns: 1fr 1fr; gap: 48px; align-items: center; max-width: 1020px; margin: 0 auto; }
+  .split img { width: 100%; border-radius: 16px; border: 1px solid var(--border); box-shadow: 0 24px 64px rgba(0,0,0,.6); filter: grayscale(10%); }
+  .split h2 { font-family: 'Plus Jakarta Sans', sans-serif; font-size: 30px; font-weight: 700; letter-spacing: -.02em; margin-bottom: 18px; }
+  .split > div > p { color: var(--text-secondary); font-size: 15px; margin-bottom: 18px; }
+  .split ul { list-style: none; display: flex; flex-direction: column; gap: 12px; }
+  .split li { font-size: 14px; color: var(--text); display: flex; gap: 11px; align-items: flex-start; }
+  .split li svg { flex-shrink: 0; width: 18px; height: 18px; color: var(--success); margin-top: 3px; }
   @media (max-width: 760px) { .split { grid-template-columns: 1fr; gap: 28px; } }
 
-  /* ── Support / Buy Me a Coffee ── */
-  .support-wrap {
-    max-width: 720px; margin: 0 auto; text-align: center;
-    background: var(--surface); border: 1px solid var(--border);
-    border-radius: 20px; padding: 56px 40px;
-    position: relative; overflow: hidden;
-  }
-  .support-wrap h3 {
-    font-family: 'Plus Jakarta Sans', sans-serif;
-    font-size: 30px; font-weight: 800; letter-spacing: -0.8px; margin-bottom: 14px;
-  }
+  /* install guide */
+  .guide { max-width: 720px; margin: 0 auto; background: var(--surface); border: 1px solid var(--border); border-radius: 18px; padding: 40px; }
+  .step-row { display: flex; gap: 22px; margin-bottom: 30px; }
+  .step-row:last-child { margin-bottom: 0; }
+  .step-num { width: 32px; height: 32px; border-radius: 50%; background: var(--card); border: 1px solid var(--border); display: grid; place-items: center; font-size: 13px; font-weight: 700; flex-shrink: 0; }
+  .step-desc h4 { font-size: 16px; font-weight: 650; margin-bottom: 6px; }
+  .step-desc p { font-size: 14px; color: var(--text-secondary); }
+
+  /* support */
+  .support-wrap { max-width: 720px; margin: 0 auto; text-align: center; background: var(--surface); border: 1px solid var(--border); border-radius: 22px; padding: 56px 40px; }
+  .support-wrap h2 { font-family: 'Plus Jakarta Sans', sans-serif; font-size: 30px; font-weight: 800; letter-spacing: -.02em; margin-bottom: 14px; }
   .support-wrap p { color: var(--text-secondary); font-size: 15px; max-width: 480px; margin: 0 auto 28px; }
-  .bmc-btn {
-    display: inline-flex; align-items: center; gap: 10px;
-    background: #FFDD00; color: #0d0d0d;
-    padding: 14px 26px; border-radius: 10px;
-    font-weight: 700; font-size: 15px; text-decoration: none;
-    transition: transform 0.15s ease, box-shadow 0.15s ease;
-    box-shadow: 0 8px 24px rgba(255,221,0,0.18);
-  }
-  .bmc-btn:hover { transform: translateY(-2px); box-shadow: 0 12px 32px rgba(255,221,0,0.28); }
+  .bmc-btn { display: inline-flex; align-items: center; gap: 10px; background: #FFDD00; color: #0d0d0d; padding: 14px 26px; border-radius: 10px; font-weight: 700; font-size: 15px; text-decoration: none; transition: transform .15s, box-shadow .15s; box-shadow: 0 8px 24px rgba(255,221,0,.18); }
+  .bmc-btn:hover { transform: translateY(-2px); box-shadow: 0 12px 32px rgba(255,221,0,.28); }
   .bmc-btn svg { width: 22px; height: 22px; }
-  .btn-nav-support {
-    color: var(--text) !important; display: inline-flex; align-items: center; gap: 6px;
-  }
-  .btn-nav-support svg { width: 15px; height: 15px; color: #FFDD00; }
 
-  /* ── Footer ── */
-  footer {
-    padding: 80px 8% 40px;
-    border-top: 1px solid var(--border);
-    background: #050608;
-    text-align: center;
-    font-size: 13.5px; color: var(--text-secondary);
-    position: relative;
-    z-index: 1;
-  }
-  .footer-logo {
-    display: flex; justify-content: center; align-items: center; gap: 12px;
-    margin-bottom: 24px;
-  }
-  .footer-logo .logo {
-    width: 28px; height: 28px; font-size: 14px;
-  }
-  .footer-links {
-    display: flex; justify-content: center; gap: 28px;
-    margin-bottom: 24px;
-  }
-  .footer-links a { color: var(--text-secondary); text-decoration: none; transition: color 0.2s; cursor: pointer; }
+  /* footer */
+  footer { padding: 72px 8% 40px; border-top: 1px solid var(--border); background: #050608; text-align: center; }
+  .footer-logo { display: flex; justify-content: center; align-items: center; gap: 11px; margin-bottom: 22px; }
+  .footer-logo .ghost { width: 26px; height: 26px; }
+  .footer-logo b { font-family: 'Plus Jakarta Sans', sans-serif; font-size: 17px; font-weight: 700; }
+  .footer-links { display: flex; justify-content: center; flex-wrap: wrap; gap: 16px 26px; margin-bottom: 22px; }
+  .footer-links a { color: var(--text-secondary); text-decoration: none; font-size: 13.5px; transition: color .2s; }
   .footer-links a:hover { color: var(--text); }
-  footer p { font-size: 12px; color: var(--muted); }
+  footer .cp { font-size: 12px; color: var(--muted); }
 
-  /* ── Responsive: tablet ── */
-  @media (max-width: 900px) {
-    nav { padding: 14px 5%; }
-    .section { padding: 80px 6%; }
-    h2 { font-size: 44px; letter-spacing: -1.4px; }
+  /* ── Download modal ── */
+  .modal-bg { position: fixed; inset: 0; background: rgba(3,4,6,.78); backdrop-filter: blur(6px); display: none; place-items: center; z-index: 2000; padding: 20px; }
+  .modal-bg.show { display: grid; animation: fade .2s ease; }
+  .modal { background: var(--surface); border: 1px solid var(--border); border-radius: 20px; width: 100%; max-width: 480px; box-shadow: 0 30px 80px rgba(0,0,0,.6); overflow: hidden; animation: pop .25s ease; }
+  @keyframes pop { from { transform: translateY(12px) scale(.98); opacity: 0; } to { transform: none; opacity: 1; } }
+  .modal-head { padding: 26px 26px 18px; border-bottom: 1px solid var(--border); position: relative; }
+  .modal-head .ghost { width: 34px; height: 34px; margin-bottom: 12px; }
+  .modal-head h3 { font-family: 'Plus Jakarta Sans', sans-serif; font-size: 20px; font-weight: 700; }
+  .modal-head .ver { font-size: 13px; color: var(--text-secondary); margin-top: 5px; }
+  .modal-head .ver b { color: var(--violet); font-variant-numeric: tabular-nums; }
+  .modal-x { position: absolute; top: 20px; right: 20px; width: 30px; height: 30px; border-radius: 8px; border: 1px solid var(--border); background: var(--card); color: var(--text-secondary); cursor: pointer; font-size: 16px; line-height: 1; }
+  .modal-x:hover { color: var(--text); }
+  .modal-body { padding: 18px 22px 22px; display: flex; flex-direction: column; gap: 10px; }
+  .dl-row { display: flex; align-items: center; gap: 14px; background: var(--card); border: 1px solid var(--border); border-radius: 13px; padding: 14px 16px; text-decoration: none; color: var(--text); transition: all .15s; }
+  .dl-row.avail:hover { border-color: var(--violet); transform: translateY(-1px); }
+  .dl-row.soon { opacity: .5; }
+  .dl-ico { width: 40px; height: 40px; border-radius: 10px; background: var(--surface); border: 1px solid var(--border); display: grid; place-items: center; flex-shrink: 0; }
+  .dl-ico svg { width: 20px; height: 20px; }
+  .dl-info { flex: 1; min-width: 0; }
+  .dl-info .t { font-size: 14px; font-weight: 650; display: flex; align-items: center; gap: 8px; }
+  .dl-info .s { font-size: 12px; color: var(--muted); margin-top: 2px; }
+  .rec { font-size: 9.5px; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; color: var(--violet2); background: rgba(167,139,250,.15); padding: 2px 7px; border-radius: 20px; }
+  .dl-go { display: inline-flex; align-items: center; gap: 6px; background: var(--accent); color: var(--accent-text); font-size: 12.5px; font-weight: 700; padding: 8px 14px; border-radius: 8px; flex-shrink: 0; }
+  .dl-row.soon .dl-go { background: var(--card); color: var(--muted); border: 1px solid var(--border); }
+  .modal-foot { padding: 0 22px 22px; }
+  .modal-foot a { font-size: 12.5px; color: var(--text-secondary); text-decoration: none; }
+  .modal-foot a:hover { color: var(--text); }
+
+  /* ── Responsive ── */
+  @media (max-width: 820px) {
+    .nav-links { display: none; }
+    .section { padding: 76px 6%; }
+    .os { height: auto; }
+    .os-body { flex-direction: column; }
+    .browser { border-right: none; border-bottom: 1px solid rgba(255,255,255,.05); min-height: 300px; }
+    .stash-app { width: 100%; }
+    .sa-list { max-height: none; }
+    .showcase { margin-top: 0; }
   }
-
-  /* ── Responsive: mobile ── */
   @media (max-width: 640px) {
-    nav { padding: 12px 18px; }
-    .brand-name { font-size: 16px; }
-    .nav-links { gap: 12px; }
-    /* ซ่อนลิงก์ข้อความกลาง เหลือปุ่มสนับสนุน + ดาวน์โหลด */
-    .nav-links a[href="#features"], .nav-links a[href="#usecases"] { display: none; }
-    .btn-nav-support span { display: none; }
-    .btn-nav-cta { padding: 7px 14px; }
-
-    .hero { padding: 96px 20px 72px; }
-    .hero-tag { font-size: 10px; margin-bottom: 18px; }
-    h2 { font-size: 32px; letter-spacing: -0.8px; margin-bottom: 18px; }
-    .hero p { font-size: 15px; margin-bottom: 30px; }
-    .hero-actions { flex-direction: column; gap: 12px; width: 100%; max-width: 320px; }
-    .hero-actions .btn-primary, .hero-actions .btn-secondary { width: 100%; text-align: center; }
-
-    .showcase { padding: 0 16px; margin-bottom: 72px; }
-    .demo-body { flex-direction: column; }
-    .demo-desktop { border-right: none; border-bottom: 1px solid var(--border); min-height: 300px; }
-    .demo-panel { max-width: none; min-width: 0; }
-    .desktop-apps { grid-template-columns: repeat(auto-fill, minmax(74px, 1fr)); gap: 10px; }
-
-    .section { padding: 64px 20px; }
-    .section-headline { margin-bottom: 44px; }
-    .section-headline h3 { font-size: 26px; }
-    .section-headline p { font-size: 14.5px; }
-    .grid-3 { gap: 18px; grid-template-columns: 1fr; }
+    nav { top: 10px; gap: 4px; padding: 6px 6px 6px 8px; }
+    .nav-brand b { display: none; }
+    .star-pill span { display: none; }
+    .section { padding: 60px 20px; }
+    .grid-3 { gap: 16px; }
     .feature-card { padding: 26px; }
-    .card-media { height: 170px; }
-
-    .split { gap: 24px; }
-    .split h3 { font-size: 24px; }
-
-    .guide-container { padding: 26px 20px; }
-    .step-row { gap: 16px; margin-bottom: 26px; }
-
-    .support-wrap { padding: 44px 24px; border-radius: 16px; }
-    .support-wrap h3 { font-size: 24px; }
-    .bmc-btn { padding: 13px 22px; font-size: 14px; }
-
-    footer { padding: 60px 20px 36px; }
-    .footer-links { flex-wrap: wrap; gap: 16px 20px; }
-  }
-
-  @media (max-width: 380px) {
-    h2 { font-size: 28px; }
-    .section-headline h3 { font-size: 23px; }
+    .guide { padding: 26px 20px; }
+    .support-wrap { padding: 42px 24px; }
+    .hero-actions .btn { width: 100%; max-width: 320px; }
+    .screen { border-width: 8px; border-radius: 14px; }
   }
 </style>
 </head>
 <body>
 
-  <div class="bg-glow"></div>
-
-  <!-- Navigation -->
-  <nav>
+  <!-- Nav -->
+  <nav id="nav">
     <div class="nav-brand">
-      <div class="logo">S</div>
-      <span class="brand-name">Stash</span>
+      <span class="ghost" id="g1"></span>
+      <b>Stash</b>
     </div>
+    <div class="nav-div"></div>
     <div class="nav-links">
       <a href="#features">ฟีเจอร์</a>
-      <a href="#usecases">กรณีการใช้งาน</a>
-      <a href="#support" class="btn-nav-support">
-        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M2 21h18v-2H2v2zM20 8h-2V5h2v3zm0-5H4v10a4 4 0 0 0 4 4h6a4 4 0 0 0 4-4v-1h2a2 2 0 0 0 2-2V5a2 2 0 0 0-2-2z"/></svg>
-        สนับสนุน
-      </a>
-      <a href="#download" class="btn-nav-cta">ดาวน์โหลด</a>
+      <a href="#usecases">การใช้งาน</a>
+      <a href="#support">สนับสนุน</a>
     </div>
+    <a class="star-pill" href="https://github.com/StarchyBomb/Stash" target="_blank" rel="noopener" title="กดดาวให้เราบน GitHub">
+      <span class="st">★</span><b id="star-count">—</b><span>Star</span>
+    </a>
+    <button class="btn-nav" onclick="openDownload()">ดาวน์โหลด</button>
   </nav>
 
-  <!-- Hero Section -->
-  <div class="hero">
-    <div class="hero-tag">Stash Desktop App</div>
-    <h2>เก็บทุกแอปตรงหน้า<br>กลับมาทำต่อได้ในคลิกเดียว</h2>
-    <p>เคลียร์หน้าจอของคุณให้สะอาดเพื่อโฟกัสสิ่งใหม่ โดยไม่ต้องกังวลเรื่องงานเก่าค้างคา บันทึก เปิด และปิดเซสชันโปรแกรมทั้งหมดพร้อมแท็บบราวเซอร์ได้ทันที</p>
+  <!-- Hero -->
+  <section class="hero">
+    <div class="hero-tag"><span class="dot"></span>เวอร์ชันล่าสุด <span id="hero-ver">v0.3.0</span> · ฟรี &amp; โอเพนซอร์ส</div>
+    <h1>เก็บทุกแอปตรงหน้า<br>กลับมาทำต่อในคลิกเดียว</h1>
+    <p>เคลียร์หน้าจอให้สะอาดเพื่อโฟกัสสิ่งใหม่ โดยไม่ทิ้งงานเก่า — บันทึกแอปและแท็บทั้งหมดเป็นเซสชัน แล้วเปิดคืนได้ทันที</p>
     <div class="hero-actions">
-      <a href="#download" class="btn-primary">ดาวน์โหลดตัวติดตั้ง</a>
-      <a href="#features" class="btn-secondary">เรียนรู้เพิ่มเติม</a>
+      <button class="btn btn-primary" onclick="openDownload()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12m0 0l-4-4m4 4l4-4M4 21h16"/></svg>
+        ดาวน์โหลด
+      </button>
+      <a class="btn btn-secondary" href="#install">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8h.01M11 12h1v4h1"/></svg>
+        วิธีติดตั้ง
+      </a>
     </div>
-  </div>
+  </section>
 
-  <!-- Interactive Demo -->
+  <!-- Demo: MacBook -->
   <div class="showcase" id="demo">
     <div class="demo-caption">
       <span class="demo-badge">▶ ลองเล่นได้เลย · Interactive Demo</span>
-      <p>นี่คือตัว Stash ของจริง — ด้านซ้ายคือหน้าจอ macOS จำลองที่คุณเปิดแอปค้างไว้หลายตัว ลองติ๊กเลือกแล้วกด "เก็บ" ดูว่าจอโล่งยังไง แล้วกด "เปิดคืน" เพื่อเรียกกลับมา</p>
+      <p>นี่คือ Stash ของจริงบนหน้าจอ MacBook — มีแท็บเปิดค้างเต็มไปหมด กด <b>"เก็บ"</b> เพื่อเคลียร์จอ แล้วสลับเปิดเซสชัน <b>Study / Trading / Coding</b> ได้ในคลิกเดียว</p>
     </div>
-    <div class="mockup-window">
-      <div class="window-header">
-        <span class="dot dot-red"></span>
-        <span class="dot dot-yellow"></span>
-        <span class="dot dot-green"></span>
-        <span class="window-title">macOS — เดสก์ท็อปของคุณ</span>
-      </div>
-      <div class="demo-body">
-        <!-- Simulated desktop -->
-        <div class="demo-desktop" id="demo-desktop">
-          <div class="desktop-topbar">
-            <span class="desktop-title" id="desktop-count">แอปที่เปิดอยู่</span>
-            <div class="desktop-tools">
-              <span id="sel-all">เลือกทั้งหมด</span>
-              <span id="sel-none">ไม่เลือก</span>
+    <div class="laptop">
+      <div class="screen">
+        <div class="os">
+          <div class="menubar">
+            <span class="ghost" id="g2"></span><b>Stash</b>
+            <span class="mb-item" style="margin-left:8px">ไฟล์</span><span class="mb-item">แก้ไข</span><span class="mb-item">มุมมอง</span>
+            <span class="spacer"></span>
+            <span class="mb-right">🔋 100%&nbsp; · &nbsp;<span id="clock">13:00</span></span>
+          </div>
+          <div class="os-body">
+            <div class="browser">
+              <div class="tabbar" id="tabbar"></div>
+              <div class="addr">
+                <div class="pill"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg><span id="addr-url">github.com</span></div>
+              </div>
+              <div class="viewport" id="viewport"></div>
+            </div>
+            <div class="stash-app">
+              <div class="sa-head">
+                <span class="ghost" id="g3"></span>
+                <div><b>Stash</b><span>v0.3.0</span></div>
+              </div>
+              <div class="sa-label">เซสชันของคุณ</div>
+              <div class="sa-list" id="sa-list"></div>
+              <button class="sa-stash" id="sa-stash">📥 เก็บหน้าจอปัจจุบัน</button>
             </div>
           </div>
-          <div class="desktop-apps" id="desktop-apps"></div>
-          <div class="desktop-empty">
-            <span class="big">✨</span>
-            <span>จอโล่งแล้ว!</span>
-            <small>โฟกัสงานใหม่ได้เต็มที่ — กด "เปิดคืน" ที่เซสชันด้านขวาเมื่อพร้อมกลับมาทำต่อ</small>
-          </div>
-        </div>
-        <!-- The real Stash app panel -->
-        <div class="demo-panel">
-          <div class="panel-head">
-            <div class="panel-logo">S</div>
-            <div>
-              <b>Stash</b>
-              <span id="panel-sub">พร้อมเก็บ</span>
-            </div>
-          </div>
-          <input type="text" id="sess-name" placeholder="ตั้งชื่อเซสชัน (ไม่บังคับ)" maxlength="40" />
-          <button id="stash-btn" class="panel-stash">📥 เก็บที่เลือก แล้วเคลียร์จอ</button>
-          <div class="panel-label">เซสชันที่เก็บไว้</div>
-          <div id="sess-list" class="sess-list"></div>
         </div>
       </div>
+      <div class="laptop-base"></div>
     </div>
   </div>
 
-  <!-- Features Section -->
+  <!-- Features -->
   <div class="section" id="features">
     <div class="section-headline">
-      <h3>ทำไมคุณต้องใช้ Stash?</h3>
-      <p>เพิ่มผลิตภาพ ลดภาระแรมคอมพิวเตอร์ และจัดระเบียบสมาธิของคุณอย่างเป็นระบบ</p>
+      <h2>ทำไมต้อง Stash?</h2>
+      <p>เพิ่มผลิตภาพ ลดภาระแรม และจัดระเบียบสมาธิของคุณอย่างเป็นระบบ</p>
     </div>
-    
     <div class="grid-3">
       <div class="feature-card">
-        <div class="feature-icon-wrapper">
-          <!-- SVG Bolt Icon -->
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
-        </div>
-        <h4>สลับขอบเขตงานในพริบตา</h4>
-        <p>ย้ายข้ามโปรเจกต์ โหมดบันเทิง หรือการประชุมด่วน โดยเก็บรวบรวมโปรแกรมที่ใช้อยู่ลงกล่องทันทีเพื่อไม่ให้รบกวนสมาธิ</p>
+        <div class="fi"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg></div>
+        <h3>สลับงานในพริบตา</h3>
+        <p>ย้ายข้ามโปรเจกต์ โหมดบันเทิง หรือประชุมด่วน โดยเก็บทุกอย่างที่เปิดอยู่ลงกล่องทันที ไม่ให้รบกวนสมาธิ</p>
       </div>
-      
       <div class="feature-card">
-        <div class="feature-icon-wrapper">
-          <!-- SVG Archive Icon -->
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="21 8 21 21 3 21 3 8"/><rect x="1" y="3" width="22" height="5"/><line x1="10" y1="12" x2="14" y2="12"/></svg>
-        </div>
-        <h4>เก็บโปรแกรมพร้อมไอคอนจริง</h4>
-        <p>Stash Desktop สามารถตรวจหาแอป GUI บนเครื่อง ดึงไอคอนมาแสดง และเปิดโปรแกรมเหล่านั้นกลับขึ้นมาใหม่ ณ ตำแหน่งเดิม</p>
+        <div class="fi"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="21 8 21 21 3 21 3 8"/><rect x="1" y="3" width="22" height="5"/><line x1="10" y1="12" x2="14" y2="12"/></svg></div>
+        <h3>เก็บโปรแกรมพร้อมไอคอนจริง</h3>
+        <p>Stash Desktop ตรวจหาแอปบนเครื่อง ดึงไอคอนจริงมาแสดง แล้วเปิดกลับขึ้นมาใหม่ได้ตรงตำแหน่งเดิม</p>
       </div>
-      
       <div class="feature-card">
-        <div class="feature-icon-wrapper">
-          <!-- SVG Refresh Icon -->
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/></svg>
-        </div>
-        <h4>เปิดคืนและปิดคืนได้ไม่จำกัด</h4>
-        <p>ฟังก์ชันพิเศษ "ปิดคืน" ช่วยให้คุณสลับเปิดใช้งาน และกดปิดโปรแกรมทั้งหมดที่เซฟไว้คืนกลับได้ทันทีโดยไม่ต้องสร้างเซสชันซ้ำ</p>
+        <div class="fi"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/></svg></div>
+        <h3>เปิดคืน / ปิดคืน ไม่จำกัด</h3>
+        <p>เปิดเซสชันกลับมา หรือกด "ปิดคืน" เพื่อเก็บชุดเดิมกลับเข้ากล่องอีกครั้งได้ทันที ไม่ต้องสร้างซ้ำ</p>
       </div>
     </div>
   </div>
 
-  <!-- Use Cases Section -->
-  <div class="section" id="usecases" style="background: #090a0d;">
+  <!-- Use Cases -->
+  <div class="section" id="usecases" style="background:#090a0d;">
     <div class="section-headline">
-      <h3>สถาปัตยกรรมสำหรับชีวิตยุคใหม่</h3>
-      <p>แนวทางการประยุกต์ใช้เพื่อปลดล็อกเวลาและประสิทธิภาพของคุณ</p>
+      <h2>เหมาะกับทุกจังหวะชีวิต</h2>
+      <p>แนวทางการใช้เพื่อปลดล็อกเวลาและสมาธิของคุณ</p>
     </div>
-
     <div class="grid-3">
-      <div class="feature-card" style="background: var(--surface)">
-        <img class="card-media" loading="lazy" src="https://images.unsplash.com/photo-1461749280684-dccba630e2f6?w=800&q=80&auto=format&fit=crop" alt="หน้าจอโค้ดของนักพัฒนา" />
-        <div class="feature-icon-wrapper">
-          <!-- SVG Code Icon -->
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
-        </div>
-        <h4>สำหรับนักพัฒนา (Developers)</h4>
-        <p>กำลังดีบั๊กอยู่แล้วมีประชุมด่วน? กด Stash เก็บ VS Code, Docker, Discord และแท็บ Stack Overflow ทั้งชุดไว้ก่อน พอประชุมเสร็จกดคืนกลับมาต่อจากจุดเดิม — ไม่ต้องเปิดใหม่ทีละตัว แรมไม่เต็ม</p>
+      <div class="feature-card">
+        <img class="card-media" loading="lazy" src="https://images.unsplash.com/photo-1461749280684-dccba630e2f6?w=800&q=80&auto=format&fit=crop" alt="โค้ด" />
+        <div class="fi"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg></div>
+        <h3>นักพัฒนา</h3>
+        <p>กำลังดีบั๊กแล้วมีประชุมด่วน? กด Stash เก็บ VS Code, Docker, Discord และแท็บ Stack Overflow ทั้งชุด พอเสร็จกดคืนมาต่อจากจุดเดิม แรมไม่เต็ม</p>
       </div>
-
-      <div class="feature-card" style="background: var(--surface)">
-        <img class="card-media" loading="lazy" src="https://images.unsplash.com/photo-1455390582262-044cdead277a?w=800&q=80&auto=format&fit=crop" alt="โต๊ะทำงานนักเขียน" />
-        <div class="feature-icon-wrapper">
-          <!-- SVG Edit/Pen Icon -->
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
-        </div>
-        <h4>สำหรับนักเขียน / ครีเอเตอร์</h4>
-        <p>ทำงานหลายโปรเจกต์พร้อมกัน? แยกเซสชัน "งานเขียนบทความ" กับ "ตัดต่อวิดีโอ" ไว้คนละชุด สลับไปมาได้ในคลิกเดียว หน้าจอไม่รก โฟกัสได้ทีละงาน</p>
+      <div class="feature-card">
+        <img class="card-media" loading="lazy" src="https://images.unsplash.com/photo-1455390582262-044cdead277a?w=800&q=80&auto=format&fit=crop" alt="เขียน" />
+        <div class="fi"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg></div>
+        <h3>นักเขียน / ครีเอเตอร์</h3>
+        <p>ทำหลายโปรเจกต์พร้อมกัน? แยกเซสชัน "เขียนบทความ" กับ "ตัดต่อวิดีโอ" ไว้คนละชุด สลับไปมาในคลิกเดียว โฟกัสได้ทีละงาน</p>
       </div>
-
-      <div class="feature-card" style="background: var(--surface)">
-        <img class="card-media" loading="lazy" src="https://images.unsplash.com/photo-1497935586351-b67a49e012bf?w=800&q=80&auto=format&fit=crop" alt="กาแฟยามเช้าเริ่มวันใหม่" />
-        <div class="feature-icon-wrapper">
-          <!-- SVG Calendar Icon -->
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
-        </div>
-        <h4>กิจวัตรเช้าวันใหม่ (Daily Routine)</h4>
-        <p>เปิดคอมตอนเช้าแล้วต้องคลิกเปิดปฏิทิน อีเมล โน้ต ข่าว ทีละอัน? เซฟชุด "เริ่มวัน" ไว้ครั้งเดียว เช้าถัดไปกดปุ่มเดียวเปิดครบทุกแอปพร้อมกัน</p>
+      <div class="feature-card">
+        <img class="card-media" loading="lazy" src="https://images.unsplash.com/photo-1497935586351-b67a49e012bf?w=800&q=80&auto=format&fit=crop" alt="เช้า" />
+        <div class="fi"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></div>
+        <h3>กิจวัตรเช้า</h3>
+        <p>เปิดคอมตอนเช้าแล้วคลิกเปิดปฏิทิน อีเมล โน้ต ข่าว ทีละอัน? เซฟชุด "เริ่มวัน" ครั้งเดียว เช้าถัดไปกดปุ่มเดียวเปิดครบ</p>
       </div>
     </div>
   </div>
 
-
-
-  <!-- How it works (visual split) -->
+  <!-- How it works -->
   <div class="section">
     <div class="split">
-      <img loading="lazy" src="https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?w=1000&q=80&auto=format&fit=crop" alt="โต๊ะทำงานที่สะอาดโล่ง" />
+      <img loading="lazy" src="https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?w=1000&q=80&auto=format&fit=crop" alt="โต๊ะสะอาด" />
       <div>
-        <h3>ใช้งานง่ายใน 3 ขั้นตอน</h3>
-        <p>ไม่ต้องเรียนรู้อะไรซับซ้อน — Stash ออกแบบมาให้กดปุ่มเดียวก็จบ</p>
+        <h2>ใช้งานง่ายใน 3 ขั้นตอน</h2>
+        <p>ไม่ต้องเรียนรู้อะไรซับซ้อน — กดปุ่มเดียวก็จบ</p>
         <ul>
-          <li>
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
-            <span><strong>กด "เก็บ"</strong> — Stash รวบรวมแท็บและโปรแกรมที่เปิดอยู่ทั้งหมดเป็นเซสชันเดียว แล้วปิดให้อัตโนมัติ</span>
-          </li>
-          <li>
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
-            <span><strong>โฟกัสงานใหม่</strong> — หน้าจอโล่ง สมองโล่ง ทำงานตรงหน้าได้เต็มที่โดยไม่มีของค้าง</span>
-          </li>
-          <li>
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
-            <span><strong>กด "คืน"</strong> — พร้อมกลับมาเมื่อไหร่ กดครั้งเดียวทุกอย่างเปิดกลับมาเหมือนเดิม</span>
-          </li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg><span><b>กด "เก็บ"</b> — รวบรวมแท็บและโปรแกรมที่เปิดอยู่เป็นเซสชันเดียว แล้วปิดให้อัตโนมัติ</span></li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg><span><b>โฟกัสงานใหม่</b> — หน้าจอโล่ง สมองโล่ง ทำงานตรงหน้าได้เต็มที่</span></li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg><span><b>กด "คืน"</b> — พร้อมกลับมาเมื่อไหร่ กดครั้งเดียวทุกอย่างเปิดกลับเหมือนเดิม</span></li>
         </ul>
       </div>
     </div>
   </div>
 
-  <!-- Installation Guide Section -->
-  <div class="section" id="download" style="background: #090a0d;">
+  <!-- Install guide -->
+  <div class="section" id="install" style="background:#090a0d;">
     <div class="section-headline">
-      <h3>ดาวน์โหลดและเริ่มใช้งาน</h3>
-      <p>เนื่องจากตัวโปรแกรมเป็นโปรแกรมแบบแจกจ่ายอิสระ (Unsigned Executable) ให้ทำตามขั้นตอนการติดตั้งด้านล่างนี้</p>
+      <h2>วิธีติดตั้ง</h2>
+      <p>ติดตั้งใช้งานได้ใน 3 ขั้นตอนง่ายๆ</p>
     </div>
-
-    <div class="guide-container">
+    <div class="guide">
       <div class="step-row">
         <div class="step-num">1</div>
         <div class="step-desc">
-          <h5>ดาวน์โหลดไฟล์ตัวติดตั้ง</h5>
-          <p>เลือกดาวน์โหลดเวอร์ชันสำหรับระบบปฏิบัติการของคุณเพื่อเริ่มต้นใช้งาน:</p>
-          <div style="margin-top: 14px; display: flex; gap: 12px; flex-wrap: wrap;">
-            <a href="https://github.com/StarchyBomb/Stash/releases" class="btn-primary" style="padding: 10px 20px; font-size: 13px; display: inline-flex; align-items: center; gap: 8px;" target="_blank">
-              <!-- SVG Windows icon -->
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M0 3.449L9.75 2.1v9.451H0V3.449zM0 12.55h9.75v9.451L0 20.651V12.55zm10.75-10.702L24 0v11.55H10.75V1.848zM10.75 12.55H24v11.55l-13.25-1.848V12.55z"/></svg>
-              <span>ดาวน์โหลดสำหรับ Windows (.msi / .exe)</span>
-            </a>
-            <a href="https://github.com/StarchyBomb/Stash/releases" class="btn-secondary" style="padding: 10px 20px; font-size: 13px; display: inline-flex; align-items: center; gap: 8px;" target="_blank">
-              <!-- SVG Apple icon -->
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12.152 6.896c-.948 0-2.415-1.078-3.96-1.04-2.04.027-3.91 1.183-4.961 3.014-2.117 3.675-.54 9.103 1.51 12.09 1.013 1.454 2.208 3.09 3.792 3.039 1.52-.065 2.107-.987 3.96-.987 1.831 0 2.371.987 3.96.95 1.624-.027 2.686-1.48 3.678-2.936 1.145-1.671 1.614-3.287 1.64-3.374-.055-.027-3.155-1.206-3.189-4.78-.027-2.986 2.449-4.426 2.56-4.492-1.398-2.053-3.565-2.285-4.322-2.34-1.929-.166-3.52 1.04-4.67 1.04zm3.014-4.597c.807-.986 1.348-2.36 1.197-3.724-1.168.053-2.589.778-3.428 1.766-.723.834-1.353 2.233-1.177 3.57 1.298.1 2.607-.638 3.408-1.612z"/></svg>
-              <span>ดาวน์โหลดสำหรับ macOS (.dmg / .zip)</span>
-            </a>
-          </div>
+          <h4>ดาวน์โหลดตัวติดตั้ง</h4>
+          <p style="margin-bottom:14px">กดปุ่มด้านล่างเพื่อเลือกเวอร์ชันสำหรับระบบของคุณ — โหลดไฟล์ติดตั้งได้ทันที</p>
+          <button class="btn btn-primary" style="padding:11px 22px;font-size:13.5px" onclick="openDownload()">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12m0 0l-4-4m4 4l4-4M4 21h16"/></svg>
+            เลือกเวอร์ชันดาวน์โหลด
+          </button>
         </div>
       </div>
-
       <div class="step-row">
         <div class="step-num">2</div>
         <div class="step-desc">
-          <h5>ข้ามหน้าต่าง Windows SmartScreen</h5>
-          <p>เมื่อกดเปิดใช้งานแล้วมีกล่องข้อความเตือนภัยสีน้ำเงิน ให้กดปุ่ม <strong>"ข้อมูลเพิ่มเติม" (More Info)</strong> จากนั้นกดปุ่ม <strong>"รันต่อไป" (Run anyway)</strong> เพื่อข้ามการสแกนความน่าเชื่อถือ</p>
+          <h4>ข้ามหน้าต่าง Windows SmartScreen</h4>
+          <p>ถ้ามีกล่องเตือนสีน้ำเงินตอนเปิดตัวติดตั้ง ให้กด <b>"ข้อมูลเพิ่มเติม (More info)"</b> แล้วกด <b>"รันต่อไป (Run anyway)"</b> — เพราะแอปยังไม่ได้เซ็นดิจิทัล แต่โค้ดเปิดเผยตรวจสอบได้</p>
         </div>
       </div>
-
       <div class="step-row">
         <div class="step-num">3</div>
         <div class="step-desc">
-          <h5>ใช้งานโปรแกรมอย่างปลอดภัย</h5>
-          <p>โปรแกรม Stash เป็นซอร์สโค้ดแบบเปิดเผย (Open Source) ปลอดภัย 100% ข้อมูลทั้งหมดบันทึกอยู่ภายในเครื่องคอมพิวเตอร์ของคุณเท่านั้น ไม่มีการส่งข้อมูลขึ้น Cloud</p>
+          <h4>ใช้งานได้อย่างปลอดภัย</h4>
+          <p>Stash เป็นโอเพนซอร์ส (AGPL-3.0) ข้อมูลทั้งหมดอยู่ในเครื่องคุณเท่านั้น ไม่มีการส่งขึ้นคลาวด์</p>
         </div>
       </div>
     </div>
   </div>
 
-  <!-- Support Section -->
+  <!-- Support -->
   <div class="section" id="support">
     <div class="support-wrap">
-      <div class="bg-glow" style="top:-200px;"></div>
-      <div class="hero-tag" style="margin-bottom:20px;">100% Open Source · ฟรีตลอด</div>
-      <h3>ถูกใจ Stash ไหม? เลี้ยงกาแฟกันได้นะ ☕</h3>
-      <p>Stash เป็นโปรเจกต์โอเพนซอร์สที่พัฒนาโดยคนคนเดียว และจะฟรีตลอดไป ถ้ามันช่วยให้ชีวิตคุณง่ายขึ้น การสนับสนุนเล็ก ๆ ของคุณจะช่วยให้ผมพัฒนาฟีเจอร์ใหม่และดูแลมันต่อไปได้</p>
+      <div class="hero-tag" style="margin-bottom:20px"><span class="dot"></span>100% Open Source · ฟรีตลอด</div>
+      <h2>ถูกใจ Stash ไหม? เลี้ยงกาแฟกันได้นะ ☕</h2>
+      <p>Stash พัฒนาโดยคนคนเดียวและจะฟรีตลอดไป ถ้ามันช่วยให้ชีวิตคุณง่ายขึ้น การสนับสนุนเล็กๆ ของคุณช่วยให้ผมพัฒนาต่อได้</p>
       <a href="https://buymeacoffee.com/tawin" target="_blank" rel="noopener" class="bmc-btn">
         <svg viewBox="0 0 24 24" fill="currentColor"><path d="M2 21h18v-2H2v2zM20 8h-2V5h2v3zm0-5H4v10a4 4 0 0 0 4 4h6a4 4 0 0 0 4-4v-1h2a2 2 0 0 0 2-2V5a2 2 0 0 0-2-2z"/></svg>
         Buy me a coffee
@@ -789,136 +504,219 @@
 
   <!-- Footer -->
   <footer>
-    <div class="footer-logo">
-      <div class="logo">S</div>
-      <span class="brand-name" style="color: var(--text);">Stash</span>
-    </div>
+    <div class="footer-logo"><span class="ghost" id="g4"></span><b>Stash</b></div>
     <div class="footer-links">
       <a href="#features">ฟีเจอร์</a>
-      <a href="#usecases">กรณีการใช้งาน</a>
-      <a href="#download">ดาวน์โหลด</a>
+      <a href="#usecases">การใช้งาน</a>
+      <a href="#install">วิธีติดตั้ง</a>
+      <a href="https://github.com/StarchyBomb/Stash" target="_blank" rel="noopener">GitHub ★ <span id="star-count-2">—</span></a>
       <a href="https://buymeacoffee.com/tawin" target="_blank" rel="noopener">สนับสนุน ☕</a>
-      <a href="https://github.com/StarchyBomb/Stash" target="_blank">GitHub</a>
     </div>
-    <p>© 2026 Tawin · Stash — เผยแพร่ภายใต้สัญญาอนุญาต AGPL-3.0 · Built with Tauri &amp; Rust</p>
+    <p class="cp">© 2026 Tawin · Stash — เผยแพร่ภายใต้สัญญาอนุญาต AGPL-3.0 · Built with Tauri &amp; Rust</p>
   </footer>
 
-  <!-- Interactive demo logic -->
-  <script>
+  <!-- Download modal -->
+  <div class="modal-bg" id="dl-modal" onclick="if(event.target===this)closeDownload()">
+    <div class="modal">
+      <div class="modal-head">
+        <span class="ghost" id="g5"></span>
+        <button class="modal-x" onclick="closeDownload()">✕</button>
+        <h3>ดาวน์โหลด Stash</h3>
+        <div class="ver">เวอร์ชันล่าสุด <b id="dl-version">กำลังโหลด…</b></div>
+      </div>
+      <div class="modal-body" id="dl-assets">
+        <div style="color:var(--muted);font-size:13px;text-align:center;padding:16px">กำลังดึงข้อมูลจาก GitHub…</div>
+      </div>
+      <div class="modal-foot">
+        <a href="https://github.com/StarchyBomb/Stash/releases" target="_blank" rel="noopener">ดูทุกเวอร์ชันบน GitHub →</a>
+      </div>
+    </div>
+  </div>
+
+<script>
+  const REPO = "StarchyBomb/Stash";
+  const GHOST = '<svg viewBox="0 0 200 210" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M36 140C36 66 60 26 100 26C140 26 164 66 164 140L164 170C158 186 142 186 132 170C123 186 109 186 100 170C91 186 77 186 68 170C59 186 44 186 36 170Z" fill="#fff" stroke="#c2c2c6" stroke-width="7" stroke-linejoin="round"/><ellipse cx="76" cy="92" rx="14" ry="17" fill="#17181f"/><ellipse cx="124" cy="92" rx="14" ry="17" fill="#17181f"/><circle cx="82" cy="85" r="3.6" fill="#fff"/><circle cx="130" cy="85" r="3.6" fill="#fff"/></svg>';
+  ["g1","g2","g3","g4","g5"].forEach(id => { const e = document.getElementById(id); if (e) e.innerHTML = GHOST; });
+
+  /* clock */
+  (function tick(){ const d=new Date(); document.getElementById("clock").textContent = d.toTimeString().slice(0,5); setTimeout(tick, 30000); })();
+
+  /* ── Floating nav: hide on scroll down ── */
   (function(){
-    const APPS = {
-      vscode:   { nm: "VS Code",  ico: "🧩" },
-      chrome:   { nm: "Chrome",   ico: "🌐" },
-      terminal: { nm: "Terminal", ico: "⌨️" },
-      discord:  { nm: "Discord",  ico: "🎮" },
-      docker:   { nm: "Docker",   ico: "🐳" },
-      figma:    { nm: "Figma",    ico: "🎨" },
-      slack:    { nm: "Slack",    ico: "💬" },
-      spotify:  { nm: "Spotify",  ico: "🎧" },
-      notion:   { nm: "Notion",   ico: "📓" },
-      mail:     { nm: "Mail",     ico: "✉️" },
-      calendar: { nm: "Calendar", ico: "📅" },
-      youtube:  { nm: "YouTube",  ico: "▶️" }
-    };
-    const PRESET = {
-      "Coding Workspace": ["vscode","chrome","terminal","discord","docker"],
-      "Morning Routine":  ["mail","calendar","notion","chrome","spotify"],
-      "Entertainment":    ["spotify","youtube","discord","chrome"]
-    };
-
-    let openKeys = PRESET["Coding Workspace"].slice();
-    let selected = new Set(openKeys);
-    let saved = [
-      { id: uid(), name: "Morning Routine", apps: PRESET["Morning Routine"].slice(), t: Date.now() - 3600e3 },
-      { id: uid(), name: "Entertainment",   apps: PRESET["Entertainment"].slice(),   t: Date.now() - 7200e3 }
-    ];
-
-    function uid(){ return Math.random().toString(36).slice(2,8); }
-    const $ = s => document.querySelector(s);
-    const appsBox = $("#desktop-apps"), desktop = $("#demo-desktop"),
-          countEl = $("#desktop-count"), listEl = $("#sess-list"),
-          stashBtn = $("#stash-btn"), sub = $("#panel-sub"), nameIn = $("#sess-name");
-
-    function timeAgo(t){
-      const m = Math.floor((Date.now()-t)/60000);
-      if (m < 1) return "เมื่อครู่";
-      if (m < 60) return m + " นาทีที่แล้ว";
-      const h = Math.floor(m/60);
-      if (h < 24) return h + " ชม.ที่แล้ว";
-      return Math.floor(h/24) + " วันที่แล้ว";
-    }
-    function esc(x){ return x.replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
-
-    function updateBtn(){
-      const n = selected.size;
-      stashBtn.disabled = n === 0;
-      stashBtn.textContent = n === 0 ? "📥 เลือกแอปก่อน" : `📥 เก็บ ${n} แอป แล้วเคลียร์จอ`;
-      sub.textContent = openKeys.length === 0 ? "จอโล่งแล้ว ✨" : `เปิดอยู่ ${openKeys.length} · เลือก ${n}`;
-    }
-    function renderDesktop(){
-      appsBox.innerHTML = "";
-      openKeys.forEach((k, i) => {
-        const a = APPS[k]; if (!a) return;
-        const tile = document.createElement("div");
-        tile.className = "app-tile" + (selected.has(k) ? " sel" : "");
-        tile.style.animationDelay = (i * 0.03) + "s";
-        tile.innerHTML = `<div class="app-chk"></div><div class="app-ico">${a.ico}</div><div class="app-nm">${a.nm}</div>`;
-        tile.addEventListener("click", () => {
-          if (selected.has(k)) selected.delete(k); else selected.add(k);
-          tile.classList.toggle("sel");
-          updateBtn();
-        });
-        appsBox.appendChild(tile);
-      });
-      desktop.classList.toggle("empty", openKeys.length === 0);
-      countEl.textContent = `แอปที่เปิดอยู่ · ${openKeys.length} ตัว`;
-      updateBtn();
-    }
-    function renderList(){
-      listEl.innerHTML = "";
-      if (saved.length === 0){ listEl.innerHTML = '<div class="sess-empty">ยังไม่มีเซสชันที่เก็บไว้</div>'; return; }
-      saved.forEach(s => {
-        const el = document.createElement("div"); el.className = "sess-card";
-        const info = document.createElement("div"); info.className = "s-info";
-        info.innerHTML = `<b>${esc(s.name)}</b><span>${s.apps.length} แอป · ${timeAgo(s.t)}</span>`;
-        const openBtn = document.createElement("button"); openBtn.textContent = "เปิดคืน";
-        openBtn.addEventListener("click", () => restore(s));
-        const del = document.createElement("button"); del.className = "s-del"; del.textContent = "✕";
-        del.addEventListener("click", () => { saved = saved.filter(x => x.id !== s.id); renderList(); });
-        el.append(info, openBtn, del);
-        listEl.appendChild(el);
-      });
-    }
-    function defaultName(){
-      return "เก็บเมื่อ " + new Date().toLocaleTimeString("th-TH", { hour: "2-digit", minute: "2-digit" });
-    }
-    function stash(){
-      if (selected.size === 0) return;
-      const apps = openKeys.filter(k => selected.has(k));
-      const name = nameIn.value.trim() || defaultName();
-      [...appsBox.children].forEach(tile => { if (tile.classList.contains("sel")) tile.classList.add("stashing"); });
-      setTimeout(() => {
-        saved.unshift({ id: uid(), name, apps, t: Date.now() });
-        openKeys = openKeys.filter(k => !selected.has(k));
-        selected = new Set(openKeys);
-        nameIn.value = "";
-        renderDesktop(); renderList();
-      }, 360);
-    }
-    function restore(s){
-      s.apps.forEach(k => { if (!openKeys.includes(k)){ openKeys.push(k); selected.add(k); } });
-      renderDesktop();
-    }
-
-    $("#sel-all").addEventListener("click", () => { selected = new Set(openKeys); renderDesktop(); });
-    $("#sel-none").addEventListener("click", () => { selected = new Set(); renderDesktop(); });
-    stashBtn.addEventListener("click", stash);
-    nameIn.addEventListener("keydown", e => { if (e.key === "Enter") stash(); });
-
-    renderDesktop();
-    renderList();
+    const nav = document.getElementById("nav"); let last = 0;
+    addEventListener("scroll", () => {
+      const y = window.scrollY;
+      if (y > last && y > 220) nav.classList.add("hide"); else nav.classList.remove("hide");
+      last = y;
+    }, { passive: true });
   })();
-  </script>
 
+  /* ── GitHub data: stars + latest release ── */
+  let RELEASE = null;
+  function fmt(n){ return n >= 1000 ? (n/1000).toFixed(1).replace(/\.0$/,'') + "k" : String(n); }
+  async function loadGithub(){
+    // stars
+    try {
+      const cached = sessionStorage.getItem("gh_repo");
+      const repo = cached ? JSON.parse(cached) : await (await fetch(`https://api.github.com/repos/${REPO}`)).json();
+      if (!cached && repo.stargazers_count != null) sessionStorage.setItem("gh_repo", JSON.stringify(repo));
+      if (repo.stargazers_count != null) {
+        document.getElementById("star-count").textContent = fmt(repo.stargazers_count);
+        document.getElementById("star-count-2").textContent = fmt(repo.stargazers_count);
+      }
+    } catch(e){ document.getElementById("star-count").textContent = "★"; }
+    // latest release
+    try {
+      const cached = sessionStorage.getItem("gh_rel");
+      RELEASE = cached ? JSON.parse(cached) : await (await fetch(`https://api.github.com/repos/${REPO}/releases/latest`)).json();
+      if (!cached && RELEASE.tag_name) sessionStorage.setItem("gh_rel", JSON.stringify(RELEASE));
+      if (RELEASE.tag_name){
+        document.getElementById("hero-ver").textContent = RELEASE.tag_name;
+        document.getElementById("dl-version").textContent = RELEASE.tag_name;
+      }
+    } catch(e){ RELEASE = { error: true }; }
+    renderAssets();
+  }
+
+  function platformOf(name){
+    const n = name.toLowerCase();
+    if (n.endsWith(".exe")) return { os:"Windows", label:"ตัวติดตั้ง Windows (.exe)", ico:"win", rec:true };
+    if (n.endsWith(".msi")) return { os:"Windows", label:"Windows MSI (.msi)", ico:"win", rec:false };
+    if (n.endsWith(".dmg")) return { os:"macOS", label:"macOS (.dmg)", ico:"apple", rec:false };
+    if (n.endsWith(".app.tar.gz") || n.endsWith(".zip")) return { os:"macOS", label:"macOS (.zip)", ico:"apple", rec:false };
+    if (n.endsWith(".appimage") || n.endsWith(".deb")) return { os:"Linux", label:"Linux ("+name.split('.').pop()+")", ico:"linux", rec:false };
+    return { os:"Other", label:name, ico:"file", rec:false };
+  }
+  const OSICON = {
+    win: '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M0 3.4L9.75 2v9.5H0V3.4zM0 12.5h9.75V22L0 20.6zM10.75 1.85L24 0v11.5H10.75zM10.75 12.5H24V24l-13.25-1.85z"/></svg>',
+    apple: '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12.15 6.9c-.95 0-2.42-1.08-3.96-1.04-2.04.03-3.91 1.18-4.96 3.01-2.12 3.68-.54 9.1 1.51 12.09 1.01 1.45 2.2 3.09 3.79 3.04 1.52-.07 2.1-.99 3.96-.99 1.83 0 2.37.99 3.96.95 1.62-.03 2.69-1.48 3.68-2.94 1.15-1.67 1.61-3.29 1.64-3.37-.06-.03-3.16-1.21-3.19-4.78-.03-2.99 2.45-4.43 2.56-4.49-1.4-2.05-3.57-2.29-4.32-2.34-1.93-.17-3.52 1.04-4.67 1.04zM15.16 2.3c.81-.99 1.35-2.36 1.2-3.72-1.17.05-2.59.78-3.43 1.77-.72.83-1.35 2.23-1.18 3.57 1.3.1 2.61-.64 3.41-1.62z"/></svg>',
+    linux: '<svg viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="12" r="9"/></svg>',
+    file: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><path d="M13 2v7h7"/></svg>'
+  };
+
+  function renderAssets(){
+    const box = document.getElementById("dl-assets");
+    box.innerHTML = "";
+    const assets = (RELEASE && RELEASE.assets) ? RELEASE.assets.filter(a => !/\.sig$/i.test(a.name)) : [];
+    if (assets.length){
+      const isMac = /Mac/i.test(navigator.userAgent);
+      assets.sort((a,b)=> platformOf(b.name).rec - platformOf(a.name).rec);
+      let hasMac = false;
+      assets.forEach(a => {
+        const p = platformOf(a.name);
+        if (p.os === "macOS") hasMac = true;
+        const mb = (a.size/1048576).toFixed(1);
+        const row = document.createElement("a");
+        row.className = "dl-row avail";
+        row.href = a.browser_download_url; row.setAttribute("download","");
+        row.innerHTML = `<div class="dl-ico">${OSICON[p.ico]}</div>
+          <div class="dl-info"><div class="t">${p.label} ${p.rec?'<span class="rec">แนะนำ</span>':''}</div>
+          <div class="s">${a.name} · ${mb} MB · ${RELEASE.tag_name||''}</div></div>
+          <span class="dl-go">ดาวน์โหลด</span>`;
+        box.appendChild(row);
+      });
+      if (!hasMac){
+        const soon = document.createElement("div");
+        soon.className = "dl-row soon";
+        soon.innerHTML = `<div class="dl-ico">${OSICON.apple}</div>
+          <div class="dl-info"><div class="t">macOS</div><div class="s">กำลังพัฒนา — เร็วๆ นี้</div></div>
+          <span class="dl-go">เร็วๆ นี้</span>`;
+        box.appendChild(soon);
+      }
+    } else {
+      box.innerHTML = `<a class="dl-row avail" href="https://github.com/${REPO}/releases/latest" target="_blank" rel="noopener">
+        <div class="dl-ico">${OSICON.file}</div>
+        <div class="dl-info"><div class="t">เปิดหน้า Releases</div><div class="s">โหลดตัวติดตั้งล่าสุดจาก GitHub</div></div>
+        <span class="dl-go">ไปที่ GitHub</span></a>`;
+    }
+  }
+  function openDownload(){ document.getElementById("dl-modal").classList.add("show"); document.body.style.overflow="hidden"; }
+  function closeDownload(){ document.getElementById("dl-modal").classList.remove("show"); document.body.style.overflow=""; }
+  addEventListener("keydown", e => { if (e.key === "Escape") closeDownload(); });
+  loadGithub();
+
+  /* ── Interactive MacBook demo ── */
+  (function(){
+    const SESS = {
+      study: { name:"Study", ico:"📚", eyebrow:"COURSERA", tabs:[
+        {f:"📚",t:"Machine Learning — Coursera",u:"coursera.org"},
+        {f:"📖",t:"Neural network — Wikipedia",u:"en.wikipedia.org"},
+        {f:"▶️",t:"3Blue1Brown — Neural nets",u:"youtube.com"},
+        {f:"📝",t:"Study Notes",u:"notion.so"},
+        {f:"🧮",t:"Khan Academy",u:"khanacademy.org"} ] },
+      trading: { name:"Trading", ico:"📈", eyebrow:"TRADINGVIEW", tabs:[
+        {f:"📈",t:"BTC/USDT — TradingView",u:"tradingview.com"},
+        {f:"🪙",t:"Binance — Spot",u:"binance.com"},
+        {f:"📊",t:"CoinMarketCap",u:"coinmarketcap.com"},
+        {f:"🐦",t:"Crypto News — X",u:"x.com"},
+        {f:"📰",t:"Markets — Investing.com",u:"investing.com"} ] },
+      coding: { name:"Coding", ico:"💻", eyebrow:"GITHUB", tabs:[
+        {f:"🐙",t:"StarchyBomb/Stash — GitHub",u:"github.com"},
+        {f:"💬",t:"Rust lifetimes — Stack Overflow",u:"stackoverflow.com"},
+        {f:"🌐",t:"localhost:5173",u:"localhost:5173"},
+        {f:"📘",t:"MDN Web Docs",u:"developer.mozilla.org"},
+        {f:"🦀",t:"tauri — docs.rs",u:"docs.rs"} ] }
+    };
+    const ORDER = ["study","trading","coding"];
+    let active = "coding";   // start busy
+    let tab = 0;
+
+    const tabbar = document.getElementById("tabbar");
+    const viewport = document.getElementById("viewport");
+    const saList = document.getElementById("sa-list");
+    const addr = document.getElementById("addr-url");
+    const stashBtn = document.getElementById("sa-stash");
+
+    function renderBrowser(){
+      tabbar.innerHTML = ""; viewport.innerHTML = "";
+      if (!active){
+        tabbar.innerHTML = `<div class="tab on"><span class="fav">＋</span><span class="tt">แท็บใหม่</span></div>`;
+        addr.textContent = "about:blank";
+        viewport.innerHTML = `<div class="page clean"><span class="big">✨</span><h4>จอโล่งแล้ว</h4><p>โฟกัสงานใหม่ได้เต็มที่ — เลือกเซสชันด้านขวาเพื่อเปิดกลับมา</p></div>`;
+        return;
+      }
+      const s = SESS[active];
+      s.tabs.forEach((tb, i) => {
+        const el = document.createElement("div");
+        el.className = "tab" + (i === tab ? " on" : "");
+        el.style.animationDelay = (i*0.04)+"s";
+        el.innerHTML = `<span class="fav">${tb.f}</span><span class="tt">${tb.t}</span><span class="x">✕</span>`;
+        el.addEventListener("click", () => { tab = i; renderBrowser(); });
+        tabbar.appendChild(el);
+      });
+      const cur = s.tabs[Math.min(tab, s.tabs.length-1)];
+      addr.textContent = cur.u;
+      viewport.innerHTML = `<div class="page">
+        <div class="page-hero"><div class="eyebrow" style="color:var(--violet)">${cur.f} ${cur.u}</div><h4>${cur.t}</h4></div>
+        <div class="page-body">
+          <div class="ln" style="width:92%"></div><div class="ln" style="width:80%"></div>
+          <div class="ln" style="width:96%"></div><div class="ln" style="width:64%"></div>
+          <div class="ln" style="width:88%"></div><div class="ln" style="width:72%"></div>
+        </div></div>`;
+    }
+    function renderSessions(){
+      saList.innerHTML = "";
+      ORDER.forEach(k => {
+        const s = SESS[k];
+        const el = document.createElement("div");
+        el.className = "sa-item" + (active === k ? " on" : "");
+        el.innerHTML = `<div class="r1"><span class="ico">${s.ico}</span><span class="nm">${s.name}</span></div>
+          <div class="${active===k?'op':'meta'}">${active===k ? '● กำลังเปิดอยู่' : s.tabs.length + ' แท็บ · แตะเพื่อเปิด'}</div>`;
+        el.addEventListener("click", () => { active = k; tab = 0; renderAll(); });
+        saList.appendChild(el);
+      });
+      stashBtn.disabled = !active;
+      stashBtn.textContent = active ? "📥 เก็บหน้าจอปัจจุบัน" : "จอโล่งแล้ว ✨";
+    }
+    function renderAll(){ renderBrowser(); renderSessions(); }
+    stashBtn.addEventListener("click", () => {
+      if (!active) return;
+      [...tabbar.children].forEach(t => t.style.transition="opacity .3s, transform .3s");
+      [...tabbar.children].forEach(t => { t.style.opacity="0"; t.style.transform="translateY(-8px)"; });
+      setTimeout(() => { active = null; tab = 0; renderAll(); }, 280);
+    });
+    renderAll();
+  })();
+</script>
 </body>
 </html>
