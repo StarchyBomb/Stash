@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8" />
+<title>Stash</title>
+<style>
+  :root {
+    --bg: #0d1117;
+    --card: #161b22;
+    --border: #21262d;
+    --text: #e6edf3;
+    --muted: #8b949e;
+    --accent: #a78bfa;
+    --accent2: #7c3aed;
+    --danger: #f85149;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    width: 340px;
+    font-family: "Segoe UI", "Leelawadee UI", system-ui, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    padding: 14px;
+  }
+  header { display: flex; align-items: center; gap: 9px; margin-bottom: 12px; }
+  .logo {
+    width: 32px; height: 32px; border-radius: 8px;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    display: grid; place-items: center;
+    font-weight: 800; font-size: 16px; color: #fff;
+  }
+  h1 { font-size: 16px; }
+  header span { font-size: 11px; color: var(--muted); display: block; }
+
+  input[type="text"] {
+    width: 100%;
+    background: var(--card); border: 1px solid var(--border); border-radius: 8px;
+    color: var(--text); font-size: 13px; font-family: inherit;
+    padding: 8px 10px; margin-bottom: 8px; outline: none;
+  }
+  input[type="text"]:focus { border-color: var(--accent2); }
+
+  #stash-btn {
+    width: 100%;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    color: #fff; border: none; border-radius: 8px;
+    font-size: 14px; font-weight: 700; font-family: inherit;
+    padding: 10px; cursor: pointer;
+    transition: opacity 0.15s;
+  }
+  #stash-btn:hover { opacity: 0.9; }
+  #stash-btn:disabled { opacity: 0.4; cursor: default; }
+
+  h2 {
+    font-size: 11px; color: var(--muted); font-weight: 600;
+    margin: 14px 2px 6px; text-transform: uppercase; letter-spacing: 1px;
+  }
+  .session {
+    background: var(--card); border: 1px solid var(--border); border-radius: 10px;
+    padding: 10px 12px; margin-bottom: 8px;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .session .info { flex: 1; min-width: 0; }
+  .session .info b {
+    display: block; font-size: 13px;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+  .session .info span { font-size: 11px; color: var(--muted); }
+  .session button {
+    border: 1px solid var(--border); border-radius: 7px;
+    background: #21262d; color: var(--text);
+    font-size: 12px; font-family: inherit; padding: 5px 10px;
+    cursor: pointer; flex-shrink: 0;
+  }
+  .session button:hover { border-color: var(--accent2); }
+  .session .del { color: var(--danger); padding: 5px 8px; }
+  .session .del.confirm { background: var(--danger); color: #fff; border-color: var(--danger); }
+  .empty { text-align: center; color: var(--muted); font-size: 12px; padding: 14px 0; }
+
+  .support-link {
+    display: flex; align-items: center; justify-content: center; gap: 6px;
+    margin-top: 12px; padding: 9px; border-radius: 8px;
+    background: #FFDD00; color: #0d0d0d;
+    font-size: 12px; font-weight: 700; text-decoration: none;
+    transition: opacity 0.15s;
+  }
+  .support-link:hover { opacity: 0.88; }
+  .support-link svg { width: 15px; height: 15px; }
+
+  /* Tab item styling */
+  .tab-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background 0.15s;
+  }
+  .tab-item:hover {
+    background: var(--bg);
+  }
+  .tab-item input[type="checkbox"] {
+    accent-color: var(--accent);
+    cursor: pointer;
+    width: 14px;
+    height: 14px;
+    flex-shrink: 0;
+  }
+  .tab-favicon {
+    width: 16px;
+    height: 16px;
+    border-radius: 3px;
+    object-fit: contain;
+    flex-shrink: 0;
+    background: rgba(255,255,255,0.05);
+  }
+  .tab-info {
+    flex: 1;
+    min-width: 0;
+    font-size: 11.5px;
+    display: flex;
+    flex-direction: column;
+  }
+  .tab-title {
+    font-weight: 500;
+    color: var(--text);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    line-height: 1.3;
+  }
+  .tab-url {
+    color: var(--muted);
+    font-size: 10px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    line-height: 1.2;
+  }
+</style>
+</head>
+<body>
+  <header>
+    <div class="logo">S</div>
+    <div>
+      <h1>Stash</h1>
+      <span id="tab-count">…</span>
+    </div>
+    <div style="margin-left: auto;">
+      <select id="lang-select" style="background: var(--card); border: 1px solid var(--border); color: var(--text); border-radius: 4px; padding: 2px 4px; font-size: 11px; cursor: pointer; outline: none; font-family: inherit;">
+        <option value="th">TH</option>
+        <option value="en">EN</option>
+      </select>
+    </div>
+  </header>
+
+  <input type="text" id="name" placeholder="ตั้งชื่อเซสชัน (ไม่บังคับ)" maxlength="60" />
+
+  <div class="tabs-to-stash-section" style="margin-bottom: 10px;">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px; padding: 0 2px;">
+      <span style="font-size: 11px; color: var(--muted); font-weight: 600; text-transform: uppercase;" id="tabs-header-label">แท็บที่จะเก็บ</span>
+      <span style="font-size: 11px; color: var(--accent); cursor: pointer; font-weight: 600;" id="toggle-all-btn">ไม่เลือกเลย</span>
+    </div>
+    <div id="tabs-list" style="max-height: 160px; overflow-y: auto; border: 1px solid var(--border); border-radius: 8px; padding: 4px; background: var(--card); display: flex; flex-direction: column; gap: 2px;">
+      <div class="empty">กำลังโหลดแท็บ...</div>
+    </div>
+  </div>
+
+  <button id="stash-btn">📥 เก็บแท็บทั้งหมด แล้วปิด</button>
+
+  <h2>เซสชันที่เก็บไว้</h2>
+  <div id="sessions"></div>
+
+  <a id="support-link" class="support-link" href="https://buymeacoffee.com/tawin" target="_blank" rel="noopener">
+    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M2 21h18v-2H2v2zM20 8h-2V5h2v3zm0-5H4v10a4 4 0 0 0 4 4h6a4 4 0 0 0 4-4v-1h2a2 2 0 0 0 2-2V5a2 2 0 0 0-2-2z"/></svg>
+    <span id="support-text">☕ เลี้ยงกาแฟผู้พัฒนา</span>
+  </a>
+
+  <script src="popup.js"></script>
+</body>
+</html>

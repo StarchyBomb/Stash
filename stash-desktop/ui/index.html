@@ -1,0 +1,740 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Stash</title>
+<style>
+  :root {
+    --bg: #0a0b0f;
+    --side: #0f1116;
+    --panel: #14161d;
+    --card: #1b1e28;
+    --card2: #191c25;
+    --border: #262a36;
+    --border-hover: #343a49;
+    --text: #eef0f5;
+    --text-secondary: #a9afc0;
+    --muted: #6c7285;
+    --accent: #a78bfa;
+    --accent2: #7c3aed;
+    --accent-soft: rgba(167,139,250,.13);
+    --accent-text: #ffffff;
+    --danger: #e5675f;
+    --success: #43c893;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { height: 100%; overflow: hidden; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Leelawadee UI", system-ui, sans-serif;
+    background:
+      radial-gradient(70% 55% at 85% -8%, rgba(124,58,237,.10), transparent 60%),
+      var(--bg);
+    color: var(--text);
+    display: flex;
+    user-select: none;
+    -webkit-font-smoothing: antialiased;
+  }
+  ::-webkit-scrollbar { width: 7px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+  ::-webkit-scrollbar-thumb:hover { background: var(--border-hover); }
+
+  /* ── Sidebar ── */
+  .side {
+    width: 268px; flex-shrink: 0;
+    background: var(--side);
+    border-right: 1px solid var(--border);
+    display: flex; flex-direction: column;
+    padding: 16px 14px 14px;
+  }
+  .brand { display: flex; align-items: center; gap: 11px; padding: 6px 6px 18px; }
+  .logo {
+    width: 38px; height: 38px;
+    display: grid; place-items: center;
+    filter: drop-shadow(0 4px 10px rgba(0,0,0,.4));
+  }
+  .logo svg { width: 34px; height: 34px; }
+  .brand h1 { font-size: 16px; font-weight: 700; letter-spacing: -0.2px; }
+  .brand .sub { font-size: 11px; color: var(--muted); margin-top: 1px; }
+
+  .nav { display: flex; flex-direction: column; gap: 3px; }
+  .nav-item {
+    display: flex; align-items: center; gap: 11px;
+    padding: 9px 11px; border-radius: 9px;
+    color: var(--text-secondary); font-size: 13.5px; cursor: pointer;
+    background: none; border: none; font-family: inherit; text-align: left; width: 100%;
+    transition: background 0.15s, color 0.15s;
+  }
+  .nav-item:hover { background: var(--card2); color: var(--text); }
+  .nav-item.on { background: var(--accent-soft); color: var(--text); font-weight: 600; }
+  .nav-item svg { width: 16px; height: 16px; stroke: currentColor; fill: none; stroke-width: 1.8; flex-shrink: 0; }
+  .nav-item.on svg { stroke: var(--accent); }
+
+  .side-label {
+    font-size: 10px; font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase;
+    color: var(--muted); margin: 22px 8px 10px;
+  }
+  .sessions { flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 8px; margin: 0 -2px; padding: 0 2px 4px; }
+
+  .session {
+    background: var(--card); border: 1px solid var(--border); border-radius: 12px;
+    padding: 12px; display: flex; flex-direction: column; gap: 10px;
+    transition: border-color 0.15s;
+  }
+  .session:hover { border-color: var(--border-hover); }
+  .session-info b {
+    display: block; font-size: 13px; font-weight: 600;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-bottom: 2px;
+  }
+  .session-info span { font-size: 11px; color: var(--muted); }
+
+  .stack { display: flex; gap: -4px; }
+  .stack .mini {
+    width: 22px; height: 22px; border-radius: 6px; margin-right: -6px;
+    background: var(--card2); border: 1px solid var(--border);
+    display: grid; place-items: center; font-size: 10px; font-weight: 700; color: var(--muted);
+    overflow: hidden;
+  }
+  .stack .mini:last-child { margin-right: 0; }
+  .stack .mini img { width: 100%; height: 100%; object-fit: contain; }
+
+  .session-btns { display: flex; gap: 6px; }
+  .btn-ghost {
+    flex: 1;
+    border: 1px solid var(--border); border-radius: 7px;
+    background: transparent; color: var(--text-secondary);
+    font-size: 11.5px; font-family: inherit; padding: 6px 8px;
+    cursor: pointer; transition: all 0.15s ease; white-space: nowrap;
+  }
+  .btn-ghost:hover { background: var(--accent-soft); color: var(--text); border-color: var(--border-hover); }
+  .btn-close-again { color: var(--text-secondary); }
+  .btn-close-again:hover { background: rgba(229,103,95,0.1); border-color: var(--danger); color: var(--danger); }
+  .btn-del { flex: 0 0 auto; color: var(--muted); padding: 6px 9px; }
+  .btn-del:hover { background: rgba(229,103,95,0.1); border-color: var(--danger); color: var(--danger); }
+  .btn-del.confirm { background: var(--danger); color: #fff; border-color: var(--danger); flex: 1; }
+
+  .side-foot { border-top: 1px solid var(--border); padding-top: 12px; margin-top: 8px; }
+  .foot-btn {
+    display: flex; align-items: center; gap: 9px; width: 100%;
+    background: none; border: none; color: var(--text-secondary); font-family: inherit;
+    font-size: 12.5px; padding: 8px 11px; border-radius: 8px; cursor: pointer;
+    transition: background 0.15s, color 0.15s;
+  }
+  .foot-btn:hover { background: var(--card2); color: var(--text); }
+
+  /* ── Main ── */
+  .main {
+    flex: 1; min-width: 0;
+    display: flex; flex-direction: column;
+    overflow-y: auto;
+    padding: 26px clamp(24px, 4vw, 44px) 32px;
+  }
+  .main-head { margin-bottom: 24px; }
+  .main-head h2 { font-size: 22px; font-weight: 700; letter-spacing: -0.3px; }
+  .main-head .desc { font-size: 13px; color: var(--muted); margin-top: 4px; }
+
+  .sec-head {
+    display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px;
+  }
+  .sec-title {
+    font-size: 11px; color: var(--muted); font-weight: 600;
+    text-transform: uppercase; letter-spacing: 0.1em;
+  }
+  .sec-links { display: flex; gap: 14px; }
+  .sec-links span { font-size: 12px; color: var(--text-secondary); cursor: pointer; transition: color 0.15s; }
+  .sec-links span:hover { color: var(--accent); }
+
+  /* App tiles */
+  .tiles {
+    display: grid; grid-template-columns: repeat(auto-fill, minmax(96px, 1fr));
+    gap: 12px;
+  }
+  .tile {
+    position: relative; cursor: pointer;
+    background: var(--card); border: 1px solid var(--border); border-radius: 13px;
+    padding: 16px 8px 12px;
+    display: flex; flex-direction: column; align-items: center; gap: 9px;
+    transition: transform 0.15s ease, border-color 0.15s;
+  }
+  .tile:hover { border-color: var(--border-hover); transform: translateY(-2px); }
+  .tile.sel { border-color: var(--accent); background: linear-gradient(180deg, var(--accent-soft), transparent); }
+  .tile-chk {
+    position: absolute; top: 8px; right: 8px;
+    width: 18px; height: 18px; border-radius: 6px;
+    border: 1.5px solid var(--muted); background: transparent;
+    display: grid; place-items: center; transition: all 0.15s;
+  }
+  .tile.sel .tile-chk { background: var(--accent); border-color: var(--accent); }
+  .tile.sel .tile-chk::after {
+    content: ""; width: 5px; height: 9px;
+    border: solid #fff; border-width: 0 2px 2px 0;
+    transform: rotate(45deg) translate(0, -1px);
+  }
+  .app-icon {
+    width: 42px; height: 42px; border-radius: 12px;
+    background: var(--card2); border: 1px solid var(--border);
+    display: grid; place-items: center;
+    font-size: 17px; font-weight: 700; color: var(--muted); overflow: hidden;
+  }
+  .app-icon img { width: 100%; height: 100%; object-fit: contain; }
+  .tile-nm {
+    font-size: 11.5px; color: var(--text-secondary); text-align: center;
+    max-width: 100%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+  .tile-title {
+    font-size: 9.5px; color: var(--muted); text-align: center;
+    max-width: 100%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    margin-top: -4px;
+  }
+  .tile-url {
+    font-size: 8.5px; color: var(--accent); text-align: center;
+    max-width: 100%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    opacity: 0.7;
+  }
+
+  /* Capture footer */
+  .capture {
+    margin-top: 20px; display: flex; flex-direction: column; gap: 10px;
+    width: 100%;
+  }
+  input[type="text"] {
+    width: 100%;
+    background: var(--panel); border: 1px solid var(--border); border-radius: 10px;
+    color: var(--text); font-size: 13px; font-family: inherit;
+    padding: 11px 14px; outline: none; transition: border-color 0.2s;
+  }
+  input[type="text"]:focus { border-color: var(--accent); }
+  input[type="text"]::placeholder { color: var(--muted); }
+
+  .btn-primary {
+    width: 100%;
+    background: linear-gradient(140deg, var(--accent), var(--accent2)); color: #fff;
+    border: none; border-radius: 10px;
+    font-size: 14px; font-weight: 650; font-family: inherit;
+    padding: 13px; cursor: pointer; transition: opacity 0.15s, transform 0.1s;
+  }
+  .btn-primary:hover { opacity: 0.92; }
+  .btn-primary:active { transform: scale(0.99); }
+  .btn-primary:disabled { opacity: 0.35; cursor: default; transform: none; }
+
+  .empty { text-align: center; color: var(--muted); font-size: 13px; padding: 30px 0; }
+  .empty.small { font-size: 12px; padding: 18px 0; }
+
+  /* ── Modal ── */
+  .modal-bg {
+    position: fixed; inset: 0; background: rgba(0,0,0,0.7);
+    display: none; place-items: center; z-index: 100;
+  }
+  .modal-bg.show { display: grid; }
+  .modal {
+    background: var(--card); border: 1px solid var(--border); border-radius: 16px;
+    width: 380px; padding: 26px; box-shadow: 0 20px 60px rgba(0,0,0,0.6);
+    display: flex; flex-direction: column; gap: 18px;
+  }
+  .modal-title { font-size: 16px; font-weight: 700; }
+  .modal-row {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 10px 0; border-bottom: 1px solid var(--border);
+  }
+  .modal-row:last-of-type { border-bottom: none; }
+  .modal-row label { font-size: 13px; color: var(--text); }
+
+  .toggle { position: relative; display: inline-block; width: 40px; height: 22px; }
+  .toggle input { opacity: 0; width: 0; height: 0; }
+  .toggle-track {
+    position: absolute; cursor: pointer; inset: 0;
+    background: #2a2c33; transition: .2s; border-radius: 34px; border: 1px solid var(--border);
+  }
+  .toggle-track:before {
+    position: absolute; content: ""; height: 14px; width: 14px; left: 3px; bottom: 3px;
+    background: var(--muted); transition: .2s; border-radius: 50%;
+  }
+  input:checked + .toggle-track { background: linear-gradient(140deg, var(--accent), var(--accent2)); border-color: transparent; }
+  input:checked + .toggle-track:before { transform: translateX(18px); background: #fff; }
+
+  .btn-modal-close {
+    width: 100%; background: var(--card2); border: 1px solid var(--border-hover);
+    color: var(--text); padding: 11px; border-radius: 9px; cursor: pointer;
+    font-size: 12.5px; font-weight: 600; transition: all 0.15s ease; margin-top: 6px;
+  }
+  .btn-modal-close:hover { background: var(--border); }
+
+  select {
+    background: var(--panel); border: 1px solid var(--border); color: var(--text);
+    border-radius: 7px; padding: 6px 12px; font-size: 13px; cursor: pointer;
+    outline: none; font-family: inherit; transition: border-color 0.2s;
+  }
+  select:focus { border-color: var(--accent); }
+
+  /* ── Toast ── */
+  #toast {
+    position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%);
+    background: var(--text); color: var(--bg);
+    font-size: 12px; font-weight: 600;
+    padding: 10px 20px; border-radius: 24px;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+    opacity: 0; transition: opacity 0.2s, bottom 0.2s; pointer-events: none; z-index: 1000;
+  }
+  #toast.show { opacity: 1; bottom: 30px; }
+
+  @media (max-width: 720px) {
+    .side { width: 210px; }
+  }
+</style>
+</head>
+<body>
+
+  <!-- Sidebar -->
+  <aside class="side">
+    <div class="brand">
+      <div class="logo"><svg viewBox="0 0 200 210" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M36 140C36 66 60 26 100 26C140 26 164 66 164 140L164 170C158 186 142 186 132 170C123 186 109 186 100 170C91 186 77 186 68 170C59 186 44 186 36 170Z" fill="#ffffff" stroke="#c2c2c6" stroke-width="7" stroke-linejoin="round"/><ellipse cx="76" cy="92" rx="14" ry="17" fill="#17181f"/><ellipse cx="124" cy="92" rx="14" ry="17" fill="#17181f"/><circle cx="82" cy="85" r="3.6" fill="#fff"/><circle cx="130" cy="85" r="3.6" fill="#fff"/></svg></div>
+      <div>
+        <h1 id="app-title">Stash</h1>
+        <div class="sub" id="app-subtitle">เก็บแอปไว้ก่อน เปิดคืนทีหลัง</div>
+      </div>
+    </div>
+
+    <nav class="nav">
+      <button class="nav-item on" id="nav-home">
+        <svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>
+        <span>หน้าหลัก</span>
+      </button>
+      <button class="nav-item" id="open-settings">
+        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.6 1.6 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.6 1.6 0 0 0-2.7 1.1V21a2 2 0 0 1-4 0v-.1A1.6 1.6 0 0 0 6.6 19l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1A1.6 1.6 0 0 0 4.9 15H4.8a2 2 0 0 1 0-4h.1a1.6 1.6 0 0 0 1.5-2.7l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1A1.6 1.6 0 0 0 12 4.9V4.8a2 2 0 0 1 4 0v.1a1.6 1.6 0 0 0 2.7 1.1l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.6 1.6 0 0 0 1.1 2.7h.1a2 2 0 0 1 0 4h-.1"/></svg>
+        <span id="nav-settings">ตั้งค่า</span>
+      </button>
+    </nav>
+
+    <div class="side-label" id="sec-saved-sessions">เซสชันที่เก็บไว้</div>
+    <div class="sessions" id="sessions">
+      <div class="empty small" id="empty-sessions-txt">ยังไม่มีเซสชันที่เก็บไว้</div>
+    </div>
+
+    <div class="side-foot">
+      <button class="foot-btn" id="support-btn"><span>☕</span><span id="support-label">เลี้ยงกาแฟผู้พัฒนา</span></button>
+    </div>
+  </aside>
+
+  <!-- Main -->
+  <main class="main">
+    <div class="main-head">
+      <h2 id="main-title">หน้าหลัก</h2>
+      <div class="desc" id="main-desc">เลือกแอปที่เปิดอยู่ แล้วเก็บเป็นเซสชันไว้เปิดคืนทีหลัง</div>
+    </div>
+
+    <section>
+      <div class="sec-head">
+        <span class="sec-title" id="sec-open-apps">แอปที่เปิดอยู่ตอนนี้</span>
+        <div class="sec-links">
+          <span id="sel-all">เลือกทั้งหมด</span>
+          <span id="sel-none">ไม่เลือกเลย</span>
+        </div>
+      </div>
+
+      <div class="tiles" id="app-list">
+        <div class="empty" id="scanning-txt">กำลังแสกนหาแอป...</div>
+      </div>
+
+      <div class="capture">
+        <input type="text" id="name" placeholder="ตั้งชื่อเซสชัน (ไม่บังคับ)" maxlength="60" />
+        <button class="btn-primary" id="stash-btn" disabled>📥 เก็บแอปที่เลือก แล้วปิด</button>
+      </div>
+    </section>
+  </main>
+
+  <!-- Settings -->
+  <div class="modal-bg" id="settings-modal">
+    <div class="modal">
+      <div class="modal-title" id="settings-title">ตั้งค่า</div>
+
+      <div class="modal-row">
+        <label id="lbl-autostart">เปิดพร้อมเปิดเครื่อง</label>
+        <label class="toggle">
+          <input type="checkbox" id="autostart-toggle">
+          <span class="toggle-track"></span>
+        </label>
+      </div>
+
+      <div class="modal-row">
+        <label id="lbl-lang">ภาษา / Language</label>
+        <select id="lang-select">
+          <option value="th">ภาษาไทย (TH)</option>
+          <option value="en">English (EN)</option>
+        </select>
+      </div>
+
+      <button class="btn-modal-close" id="close-settings">ปิด</button>
+    </div>
+  </div>
+
+  <div id="toast"></div>
+
+<script>
+  const { invoke } = window.__TAURI__.core;
+  const $ = id => document.getElementById(id);
+
+  $("support-btn").addEventListener("click", () => {
+    invoke("open_url_cmd", { url: "https://buymeacoffee.com/tawin" });
+  });
+
+  let openApps = [];
+  let sessions = [];
+  let currentLang = localStorage.getItem("desktop-lang") || "en";
+
+  const TRANSLATIONS = {
+    th: {
+      subtitle: "work buddy",
+      mainTitle: "หน้าหลัก",
+      mainDesc: "เลือกแอปที่เปิดอยู่ แล้วเก็บเป็นเซสชันไว้เปิดคืนทีหลัง",
+      navHome: "หน้าหลัก",
+      navSettings: "ตั้งค่า",
+      supportLabel: "เลี้ยงกาแฟผู้พัฒนา",
+      secOpenApps: "แอปที่เปิดอยู่ตอนนี้",
+      selAll: "เลือกทั้งหมด",
+      selNone: "ไม่เลือกเลย",
+      scanning: "กำลังแสกนหาแอป...",
+      emptyApps: "ไม่มีแอปอื่นที่เปิดอยู่",
+      scanError: (e) => `แสกนผิดพลาด: ${e}`,
+      placeholder: "ตั้งชื่อเซสชัน (ไม่บังคับ)",
+      stashBtnEmpty: "📥 เลือกแอปที่ต้องการเก็บ",
+      stashBtnActive: (n) => `📥 เก็บ ${n} แอปที่เลือก แล้วปิด`,
+      secSavedSessions: "เซสชันที่เก็บไว้",
+      emptySessions: "ยังไม่มีเซสชันที่เก็บไว้",
+      settingsTitle: "ตั้งค่า",
+      lblAutostart: "เปิดพร้อมเปิดเครื่อง",
+      lblLang: "ภาษา / Language",
+      btnClose: "ปิด",
+      toastRestore: "เปิดแอปทั้งหมดแล้ว",
+      toastCloseBack: "ปิดแอปในเซสชันแล้ว",
+      toastDeleted: "ลบเซสชันแล้ว",
+      toastStashing: "กำลังเก็บและปิดแอป...",
+      toastSaved: "บันทึกแล้ว",
+      toastError: (e) => `ผิดพลาด: ${e}`,
+      btnRestore: "เปิดคืน",
+      btnCloseAgain: "ปิดคืน",
+      confirmDelete: "ลบ?",
+      timeJustNow: "เมื่อครู่",
+      timeMinAgo: (m) => `${m} นาทีที่แล้ว`,
+      timeHourAgo: (h) => `${h} ชม.ที่แล้ว`,
+      timeDayAgo: (d) => `${d} วันที่แล้ว`,
+      defaultName: (d, t) => `เซสชันวันที่ ${d} เวลา ${t}`,
+      unitApps: "แอป"
+    },
+    en: {
+      subtitle: "work buddy",
+      mainTitle: "Home",
+      mainDesc: "Pick the apps you have open and stash them into a session to restore later.",
+      navHome: "Home",
+      navSettings: "Settings",
+      supportLabel: "Buy me a coffee",
+      secOpenApps: "Active Applications",
+      selAll: "Select All",
+      selNone: "Deselect All",
+      scanning: "Scanning for active apps...",
+      emptyApps: "No other active applications",
+      scanError: (e) => `Scan error: ${e}`,
+      placeholder: "Session name (optional)",
+      stashBtnEmpty: "📥 Select apps to stash",
+      stashBtnActive: (n) => `📥 Stash ${n} selected apps and close`,
+      secSavedSessions: "Saved Sessions",
+      emptySessions: "No saved sessions",
+      settingsTitle: "Settings",
+      lblAutostart: "Start with Windows/macOS",
+      lblLang: "ภาษา / Language",
+      btnClose: "Close",
+      toastRestore: "All apps restored",
+      toastCloseBack: "Stashed apps closed again",
+      toastDeleted: "Session deleted",
+      toastStashing: "Stashing and closing apps...",
+      toastSaved: "Saved",
+      toastError: (e) => `Error: ${e}`,
+      btnRestore: "Restore",
+      btnCloseAgain: "Close back",
+      confirmDelete: "Delete?",
+      timeJustNow: "just now",
+      timeMinAgo: (m) => `${m}m ago`,
+      timeHourAgo: (h) => `${h}h ago`,
+      timeDayAgo: (d) => `${d}d ago`,
+      defaultName: (d, t) => `Session on ${d} at ${t}`,
+      unitApps: "apps"
+    }
+  };
+
+  /* ── helpers ── */
+  function getT() { return TRANSLATIONS[currentLang]; }
+
+  function toast(msg, err = false) {
+    const t = $("toast");
+    t.textContent = msg;
+    t.style.background = err ? "var(--danger)" : "var(--text)";
+    t.style.color = err ? "#fff" : "var(--bg)";
+    t.classList.add("show");
+    setTimeout(() => t.classList.remove("show"), 2200);
+  }
+
+  function timeAgo(ts) {
+    const t = getT();
+    const m = Math.floor((Date.now() - ts) / 60000);
+    if (m < 1) return t.timeJustNow;
+    if (m < 60) return t.timeMinAgo(m);
+    const h = Math.floor(m / 60);
+    if (h < 24) return t.timeHourAgo(h);
+    return t.timeDayAgo(Math.floor(h / 24));
+  }
+
+  function defaultName() {
+    const d = new Date();
+    const t = getT();
+    if (currentLang === "th") {
+      const date = d.toLocaleDateString("th-TH", { day: "numeric", month: "short" });
+      const time = d.toLocaleTimeString("th-TH", { hour: "2-digit", minute: "2-digit" });
+      return t.defaultName(date, time);
+    } else {
+      const date = d.toLocaleDateString("en-US", { day: "numeric", month: "short" });
+      const time = d.toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit", hour12: false });
+      return t.defaultName(date, time);
+    }
+  }
+
+  /* ── open-apps scanning ── */
+  async function scan() {
+    try {
+      const apps = await invoke("get_open_apps_cmd");
+      const prev = new Map(openApps.map(a => [`${a.exePath}:${a.pid}`, a.selected]));
+      openApps = apps.map(a => ({
+        ...a,
+        selected: prev.get(`${a.exePath}:${a.pid}`) ?? true
+      }));
+      renderApps();
+    } catch (e) {
+      $("app-list").innerHTML = `<div class="empty" style="color:var(--danger)">${getT().scanError(e)}</div>`;
+    }
+  }
+
+  function renderApps() {
+    const list = $("app-list");
+    list.innerHTML = "";
+    if (openApps.length === 0) {
+      list.innerHTML = `<div class="empty">${getT().emptyApps}</div>`;
+      $("stash-btn").disabled = true;
+      updateBtn();
+      return;
+    }
+    openApps.forEach((app, i) => {
+      const tile = document.createElement("div");
+      tile.className = "tile" + (app.selected ? " sel" : "");
+      tile.title = app.title || app.exePath || "";
+      tile.addEventListener("click", () => {
+        openApps[i].selected = !openApps[i].selected;
+        tile.classList.toggle("sel", openApps[i].selected);
+        updateBtn();
+      });
+
+      const chk = document.createElement("span");
+      chk.className = "tile-chk";
+
+      const iconEl = document.createElement("div");
+      iconEl.className = "app-icon";
+      if (app.icon) {
+        const img = document.createElement("img");
+        img.src = app.icon;
+        img.alt = app.name;
+        iconEl.appendChild(img);
+      } else {
+        iconEl.textContent = app.name.charAt(0).toUpperCase();
+      }
+
+      const nm = document.createElement("div");
+      nm.className = "tile-nm";
+      nm.textContent = app.name.replace(/\.exe$/i, "");
+
+      tile.append(chk, iconEl, nm);
+
+      // Show window title (truncated) to distinguish multiple windows
+      if (app.title && app.title !== app.name) {
+        const titleEl = document.createElement("div");
+        titleEl.className = "tile-title";
+        titleEl.textContent = app.title.length > 30 ? app.title.slice(0, 28) + "..." : app.title;
+        tile.appendChild(titleEl);
+      }
+
+      // Show URL badge for browser windows
+      if (app.activeUrl) {
+        const urlEl = document.createElement("div");
+        urlEl.className = "tile-url";
+        try {
+          urlEl.textContent = new URL(app.activeUrl).hostname;
+        } catch {
+          urlEl.textContent = app.activeUrl.slice(0, 25);
+        }
+        tile.appendChild(urlEl);
+      }
+
+      list.appendChild(tile);
+    });
+    updateBtn();
+  }
+
+  function updateBtn() {
+    const n = openApps.filter(a => a.selected).length;
+    const btn = $("stash-btn");
+    btn.disabled = n === 0;
+    btn.textContent = n === 0 ? getT().stashBtnEmpty : getT().stashBtnActive(n);
+  }
+
+  /* ── sessions ── */
+  async function refresh() {
+    try {
+      const cfg = await invoke("get_config_cmd");
+      sessions = cfg.sessions || [];
+      $("autostart-toggle").checked = !!cfg.autostart;
+      applyLanguage();
+      renderSessions();
+      await scan();
+    } catch (e) { console.error(e); }
+  }
+
+  function renderSessions() {
+    const t = getT();
+    const box = $("sessions");
+    box.innerHTML = "";
+    if (sessions.length === 0) {
+      box.innerHTML = `<div class="empty small">${t.emptySessions}</div>`;
+      return;
+    }
+    sessions.forEach(s => {
+      const el = document.createElement("div");
+      el.className = "session";
+
+      const info = document.createElement("div");
+      info.className = "session-info";
+      const title = document.createElement("b");
+      title.textContent = s.name;
+      const meta = document.createElement("span");
+      meta.textContent = `${s.apps.length} ${t.unitApps} · ${timeAgo(s.createdAt)}`;
+      info.append(title, meta);
+
+      // tiny stacked icons
+      const stack = document.createElement("div");
+      stack.className = "stack";
+      s.apps.slice(0, 5).forEach(a => {
+        const d = document.createElement("span");
+        d.className = "mini";
+        if (a.icon) {
+          const img = document.createElement("img");
+          img.src = a.icon;
+          d.appendChild(img);
+        } else {
+          d.textContent = (a.name || "?").charAt(0).toUpperCase();
+        }
+        stack.appendChild(d);
+      });
+
+      const btns = document.createElement("div");
+      btns.className = "session-btns";
+
+      const openBtn = document.createElement("button");
+      openBtn.className = "btn-ghost";
+      openBtn.textContent = t.btnRestore;
+      openBtn.addEventListener("click", async () => {
+        await invoke("restore_session_cmd", { id: s.id });
+        toast(t.toastRestore);
+        setTimeout(scan, 1500);
+      });
+
+      const closeBtn = document.createElement("button");
+      closeBtn.className = "btn-ghost btn-close-again";
+      closeBtn.textContent = t.btnCloseAgain;
+      closeBtn.addEventListener("click", async () => {
+        await invoke("close_session_apps_cmd", { id: s.id });
+        toast(t.toastCloseBack);
+        setTimeout(scan, 800);
+      });
+
+      const delBtn = document.createElement("button");
+      delBtn.className = "btn-ghost btn-del";
+      delBtn.textContent = "✕";
+      delBtn.addEventListener("click", async () => {
+        if (delBtn.classList.contains("confirm")) {
+          await invoke("delete_session_cmd", { id: s.id });
+          toast(t.toastDeleted);
+          refresh();
+        } else {
+          delBtn.classList.add("confirm");
+          delBtn.textContent = t.confirmDelete;
+          setTimeout(() => { delBtn.classList.remove("confirm"); delBtn.textContent = "✕"; }, 2000);
+        }
+      });
+
+      btns.append(openBtn, closeBtn, delBtn);
+      el.append(info, stack, btns);
+      box.appendChild(el);
+    });
+  }
+
+  /* ── stash ── */
+  async function stash() {
+    const sel = openApps.filter(a => a.selected);
+    if (sel.length === 0) return;
+    const nm = $("name").value.trim() || defaultName();
+    toast(getT().toastStashing);
+    try {
+      await invoke("stash_apps_cmd", { name: nm, apps: sel });
+      $("name").value = "";
+      setTimeout(refresh, 800);
+    } catch (e) { toast(getT().toastError(e), true); }
+  }
+
+  /* ── Language ── */
+  function applyLanguage() {
+    const t = getT();
+    $("app-subtitle").textContent = t.subtitle;
+    $("main-title").textContent = t.mainTitle;
+    $("main-desc").textContent = t.mainDesc;
+    $("nav-home").querySelector("span").textContent = t.navHome;
+    $("nav-settings").textContent = t.navSettings;
+    $("support-label").textContent = t.supportLabel;
+    $("sec-open-apps").textContent = t.secOpenApps;
+    $("sec-saved-sessions").textContent = t.secSavedSessions;
+    $("sel-all").textContent = t.selAll;
+    $("sel-none").textContent = t.selNone;
+    $("name").placeholder = t.placeholder;
+    $("settings-title").textContent = t.settingsTitle;
+    $("lbl-autostart").textContent = t.lblAutostart;
+    $("lbl-lang").textContent = t.lblLang;
+    $("close-settings").textContent = t.btnClose;
+    updateBtn();
+  }
+
+  /* ── events ── */
+  $("stash-btn").addEventListener("click", stash);
+  $("name").addEventListener("keydown", e => { if (e.key === "Enter") stash(); });
+  $("sel-all").addEventListener("click", () => { openApps.forEach(a => a.selected = true); renderApps(); });
+  $("sel-none").addEventListener("click", () => { openApps.forEach(a => a.selected = false); renderApps(); });
+  $("open-settings").addEventListener("click", () => $("settings-modal").classList.add("show"));
+  $("close-settings").addEventListener("click", () => $("settings-modal").classList.remove("show"));
+  $("settings-modal").addEventListener("click", e => { if (e.target === $("settings-modal")) $("settings-modal").classList.remove("show"); });
+  $("autostart-toggle").addEventListener("change", async e => {
+    try {
+      await invoke("set_autostart_cmd", { enabled: e.target.checked });
+      toast(getT().toastSaved);
+    } catch (err) { toast(getT().toastError(err), true); e.target.checked = !e.target.checked; }
+  });
+
+  $("lang-select").value = currentLang;
+  $("lang-select").addEventListener("change", e => {
+    currentLang = e.target.value;
+    localStorage.setItem("desktop-lang", currentLang);
+    applyLanguage();
+    renderSessions();
+    renderApps();
+  });
+
+  window.addEventListener("focus", scan);
+  setInterval(() => { if (document.hasFocus()) scan(); }, 5000);
+
+  refresh();
+</script>
+</body>
+</html>

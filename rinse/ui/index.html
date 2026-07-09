@@ -1,0 +1,479 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Rinse</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Sarabun:wght@300;400;500;600;700&display=swap');
+
+  :root {
+    --bg: #030712;
+    --card: rgba(17, 24, 39, 0.7);
+    --card-hover: rgba(31, 41, 55, 0.8);
+    --border: rgba(255, 255, 255, 0.06);
+    --border-hover: rgba(99, 102, 241, 0.25);
+    --text: #f3f4f6;
+    --text-muted: #9ca3af;
+    --accent: #38bdf8;
+    --accent-glow: rgba(56, 189, 248, 0.3);
+    --accent-gradient: linear-gradient(135deg, #38bdf8, #6366f1);
+    --success: #10b981;
+    --success-glow: rgba(16, 185, 129, 0.2);
+  }
+
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+
+  body {
+    font-family: 'Inter', 'Sarabun', system-ui, -apple-system, sans-serif;
+    background: var(--bg);
+    background-image: 
+      radial-gradient(at 0% 0%, rgba(56, 189, 248, 0.08) 0px, transparent 50%),
+      radial-gradient(at 100% 100%, rgba(99, 102, 241, 0.08) 0px, transparent 50%);
+    background-attachment: fixed;
+    color: var(--text);
+    padding: 20px;
+    user-select: none;
+    overflow-y: auto;
+    overflow-x: hidden;
+    min-height: 100vh;
+  }
+
+  header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 20px;
+  }
+
+  .logo {
+    width: 44px;
+    height: 44px;
+    border-radius: 12px;
+    background: var(--accent-gradient);
+    display: grid;
+    place-items: center;
+    color: #fff;
+    box-shadow: 0 0 20px rgba(99, 102, 241, 0.3);
+    transition: transform 0.3s ease;
+  }
+  
+  header:hover .logo {
+    transform: scale(1.05) rotate(-3deg);
+  }
+
+  h1 {
+    font-size: 20px;
+    font-weight: 700;
+    letter-spacing: -0.5px;
+    background: linear-gradient(to right, #ffffff, #d1d5db);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+
+  header p {
+    font-size: 12px;
+    color: var(--text-muted);
+    font-weight: 400;
+    margin-top: 2px;
+  }
+
+  .glass-card {
+    background: var(--card);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 16px;
+    margin-bottom: 16px;
+    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .glass-card:hover {
+    border-color: var(--border-hover);
+    box-shadow: 0 8px 32px 0 rgba(99, 102, 241, 0.05);
+  }
+
+  .status-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .status-info {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+    font-weight: 500;
+  }
+
+  .dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: var(--success);
+    box-shadow: 0 0 12px var(--success);
+    display: inline-block;
+    animation: pulse 2s infinite ease-in-out;
+  }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 0.6; box-shadow: 0 0 8px var(--success); }
+    50% { opacity: 1; box-shadow: 0 0 16px var(--success); }
+  }
+
+  kbd {
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-bottom: 3px solid rgba(255, 255, 255, 0.2);
+    border-radius: 6px;
+    padding: 3px 8px;
+    font-family: inherit;
+    font-size: 11px;
+    font-weight: 600;
+    color: #e2e8f0;
+  }
+
+  .count {
+    text-align: right;
+  }
+
+  .count b {
+    font-size: 24px;
+    font-weight: 700;
+    background: var(--accent-gradient);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    display: block;
+    line-height: 1;
+  }
+
+  .count span {
+    display: block;
+    font-size: 11px;
+    color: var(--text-muted);
+    margin-top: 4px;
+    font-weight: 500;
+  }
+
+  h2 {
+    font-size: 11px;
+    color: var(--text-muted);
+    font-weight: 600;
+    margin: 0 4px 8px;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+  }
+
+  .rule-container {
+    padding: 4px 0;
+  }
+
+  .rule {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 4px;
+    transition: background-color 0.2s;
+  }
+
+  .rule:not(:last-child) {
+    border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+  }
+
+  .rule .label {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    padding-right: 8px;
+  }
+
+  .rule .label b {
+    font-size: 13.5px;
+    font-weight: 600;
+    color: #f3f4f6;
+  }
+
+  .rule .label span {
+    font-size: 11px;
+    color: var(--text-muted);
+    line-height: 1.3;
+  }
+
+  /* Custom Toggle Switch */
+  .switch {
+    position: relative;
+    width: 42px;
+    height: 24px;
+    flex-shrink: 0;
+  }
+
+  .switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+  }
+
+  .slider {
+    position: absolute;
+    inset: 0;
+    cursor: pointer;
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.04);
+    border-radius: 24px;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .slider::before {
+    content: "";
+    position: absolute;
+    width: 16px;
+    height: 16px;
+    left: 3px;
+    top: 3px;
+    background: #9ca3af;
+    border-radius: 50%;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+  }
+
+  .switch input:checked + .slider {
+    background: var(--accent-gradient);
+    border-color: rgba(99, 102, 241, 0.2);
+    box-shadow: 0 0 10px rgba(99, 102, 241, 0.2);
+  }
+
+  .switch input:checked + .slider::before {
+    transform: translateX(18px);
+    background: #ffffff;
+    box-shadow: 0 0 8px rgba(255, 255, 255, 0.4);
+  }
+
+  .switch input:focus + .slider {
+    border-color: var(--accent);
+  }
+
+  /* Textareas */
+  textarea {
+    width: 100%;
+    min-height: 80px;
+    background: rgba(10, 15, 30, 0.6);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    color: var(--text);
+    font-size: 13px;
+    font-family: inherit;
+    padding: 12px;
+    resize: vertical;
+    outline: none;
+    transition: all 0.3s;
+  }
+
+  textarea:focus {
+    border-color: rgba(99, 102, 241, 0.4);
+    box-shadow: 0 0 15px rgba(99, 102, 241, 0.1);
+    background: rgba(10, 15, 30, 0.8);
+  }
+
+  .out {
+    width: 100%;
+    min-height: 60px;
+    background: rgba(16, 185, 129, 0.04);
+    border: 1px solid rgba(16, 185, 129, 0.15);
+    border-radius: 12px;
+    color: #34d399;
+    font-size: 13px;
+    font-family: inherit;
+    padding: 12px;
+    margin-top: 12px;
+    white-space: pre-wrap;
+    user-select: text;
+    transition: all 0.3s;
+    box-shadow: inset 0 2px 4px rgba(0,0,0,0.1);
+  }
+
+  .out:empty {
+    display: none;
+  }
+
+  .hint {
+    font-size: 11.5px;
+    color: var(--text-muted);
+    margin-top: 16px;
+    text-align: center;
+    font-weight: 500;
+  }
+
+  /* Scrollbar */
+  ::-webkit-scrollbar {
+    width: 6px;
+  }
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 3px;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 255, 255, 0.2);
+  }
+</style>
+</head>
+<body>
+  <header>
+    <div class="logo">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        <path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/>
+        <path d="m5 3 1 2.5L8.5 6 6 7 5 9.5 4 7 1.5 6 4 5.5z"/>
+        <path d="m19 17 1 2.5 2.5.5-2.5 1-1 2.5-1-2.5-2.5-1 2.5-1z"/>
+      </svg>
+    </div>
+    <div>
+      <h1>Rinse</h1>
+      <p>จัดระบบข้อมูลและล้างข้อความรกในปุ่มเดียว</p>
+    </div>
+  </header>
+
+  <div class="glass-card status-row">
+    <div class="status-info">
+      <span class="dot"></span>
+      <span><kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>V</kbd> พร้อมใช้</span>
+    </div>
+    <div class="count">
+      <b id="count">0</b>
+      <span>ครั้งที่ล้าง</span>
+    </div>
+  </div>
+
+  <h2>กฎการล้างข้อความ</h2>
+  <div class="glass-card rule-container">
+    <div class="rule">
+      <div class="label">
+        <b>จัดย่อหน้า & ใส่ Bullet Point</b>
+        <span>แปลงข้อความแยกบรรทัดเป็นรายการหัวข้อย่อย (•) สวยงาม</span>
+      </div>
+      <label class="switch">
+        <input type="checkbox" id="bullet_list" />
+        <span class="slider"></span>
+      </label>
+    </div>
+    <div class="rule">
+      <div class="label">
+        <b>ซ่อมบรรทัดพัง</b>
+        <span>รวมบรรทัดที่โดนตัดคำพัง ๆ (จาก PDF/อีเมล) กลับเป็นย่อหน้า</span>
+      </div>
+      <label class="switch">
+        <input type="checkbox" id="fix_linebreaks" />
+        <span class="slider"></span>
+      </label>
+    </div>
+    <div class="rule">
+      <div class="label">
+        <b>เครื่องหมายมาตรฐาน</b>
+        <span>smart quotes → " " · em-dash → - · … → ...</span>
+      </div>
+      <label class="switch">
+        <input type="checkbox" id="normalize_punct" />
+        <span class="slider"></span>
+      </label>
+    </div>
+    <div class="rule">
+      <div class="label">
+        <b>ล้างลิงก์สะกดรอย</b>
+        <span>ตัดลิงก์รก ๆ utm_*, fbclid, gclid, si ออกจาก URL</span>
+      </div>
+      <label class="switch">
+        <input type="checkbox" id="strip_tracking" />
+        <span class="slider"></span>
+      </label>
+    </div>
+    <div class="rule">
+      <div class="label">
+        <b>เก็บกวาดช่องว่าง</b>
+        <span>ยุบช่องว่างซ้ำ บรรทัดว่างส่วนเกิน และอักขระล่องหน</span>
+      </div>
+      <label class="switch">
+        <input type="checkbox" id="tidy_whitespace" />
+        <span class="slider"></span>
+      </label>
+    </div>
+    <div class="rule">
+      <div class="label">
+        <b>เปิดพร้อม Windows</b>
+        <span>เปิดใช้งานโปรแกรมอัตโนมัติเมื่อสตาร์ทเครื่อง</span>
+      </div>
+      <label class="switch">
+        <input type="checkbox" id="autostart" />
+        <span class="slider"></span>
+      </label>
+    </div>
+  </div>
+
+  <h2>ลองทดสอบใช้งาน</h2>
+  <div class="glass-card">
+    <textarea id="test-in" placeholder="วางข้อความเพื่อดูตัวอย่างการแปลงจัดระเบียบตรงนี้..."></textarea>
+    <div class="out" id="test-out"></div>
+  </div>
+
+  <p class="hint">ปิดหน้าต่างได้เลย — Rinse จะรันต่อเงียบ ๆ ใน System Tray ขวาล่าง</p>
+
+<script>
+  const { invoke } = window.__TAURI__.core;
+  const { listen } = window.__TAURI__.event;
+
+  const RULE_KEYS = ["fix_linebreaks", "normalize_punct", "strip_tracking", "tidy_whitespace", "bullet_list"];
+  const $ = (id) => document.getElementById(id);
+
+  async function init() {
+    const cfg = await invoke("get_config");
+    for (const k of RULE_KEYS) $(k).checked = !!cfg.rules[k];
+    $("autostart").checked = !!cfg.autostart;
+    $("count").textContent = cfg.cleansTotal;
+
+    await listen("cleaned", (e) => { $("count").textContent = e.payload; });
+  }
+
+  function currentRules() {
+    const rules = {};
+    for (const k of RULE_KEYS) rules[k] = $(k).checked;
+    return rules;
+  }
+
+  for (const k of RULE_KEYS) {
+    $(k).addEventListener("change", async () => {
+      await invoke("set_rules", { rules: currentRules() });
+      refreshPreview();
+    });
+  }
+
+  $("autostart").addEventListener("change", async (e) => {
+    try {
+      await invoke("set_autostart", { enabled: e.target.checked });
+    } catch (err) {
+      e.target.checked = !e.target.checked;
+    }
+  });
+
+  let previewTimer = null;
+  function refreshPreview() {
+    clearTimeout(previewTimer);
+    previewTimer = setTimeout(async () => {
+      const text = $("test-in").value;
+      $("test-out").textContent = text.trim()
+        ? await invoke("clean_preview", { text })
+        : "";
+    }, 200);
+  }
+  $("test-in").addEventListener("input", refreshPreview);
+
+  init();
+</script>
+</body>
+</html>

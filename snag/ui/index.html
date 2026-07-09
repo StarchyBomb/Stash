@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Snag</title>
+<style>
+  :root {
+    --bg: #0d1117;
+    --card: #161b22;
+    --border: #21262d;
+    --text: #e6edf3;
+    --muted: #8b949e;
+    --accent: #fbbf24;
+    --accent2: #d97706;
+    --danger: #f85149;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { height: 100%; }
+  body {
+    font-family: "Segoe UI", "Leelawadee UI", system-ui, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    display: flex; flex-direction: column;
+    user-select: none;
+  }
+  header {
+    display: flex; align-items: center; gap: 10px;
+    padding: 14px 16px 10px;
+    flex-shrink: 0;
+  }
+  .logo {
+    width: 34px; height: 34px; border-radius: 9px;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    display: grid; place-items: center;
+    font-weight: 800; font-size: 17px; color: #fff;
+  }
+  h1 { font-size: 17px; }
+  header .sub { font-size: 11px; color: var(--muted); }
+  header .spacer { flex: 1; }
+  kbd {
+    background: #21262d; border: 1px solid #30363d; border-bottom-width: 2px;
+    border-radius: 5px; padding: 1px 6px;
+    font-family: inherit; font-size: 11px; font-weight: 600;
+  }
+  .toolbar { display: flex; gap: 8px; padding: 0 16px 10px; flex-shrink: 0; }
+  #search {
+    flex: 1;
+    background: var(--card); border: 1px solid var(--border); border-radius: 8px;
+    color: var(--text); font-size: 13px; font-family: inherit;
+    padding: 7px 10px; outline: none;
+  }
+  #search:focus { border-color: var(--accent2); }
+  #clear-btn {
+    background: var(--card); border: 1px solid var(--border); border-radius: 8px;
+    color: var(--muted); font-size: 12px; font-family: inherit;
+    padding: 7px 10px; cursor: pointer;
+  }
+  #clear-btn.confirm { background: var(--danger); color: #fff; border-color: var(--danger); }
+
+  #list { flex: 1; overflow-y: auto; padding: 0 16px 16px; }
+  .item {
+    background: var(--card); border: 1px solid var(--border); border-radius: 10px;
+    padding: 10px 12px; margin-bottom: 8px;
+  }
+  .item .meta {
+    display: flex; align-items: center; gap: 6px;
+    font-size: 11px; color: var(--muted); margin-bottom: 6px;
+  }
+  .item .meta .src {
+    max-width: 200px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+  .item .meta .spacer { flex: 1; }
+  .item .meta button {
+    background: none; border: none; color: var(--muted);
+    font-size: 12px; font-family: inherit; cursor: pointer; padding: 2px 5px;
+    border-radius: 5px;
+  }
+  .item .meta button:hover { background: #21262d; color: var(--text); }
+  .item .meta button.del:hover { color: var(--danger); }
+  .item .body {
+    font-size: 13px; line-height: 1.45;
+    white-space: pre-wrap; word-break: break-word;
+    user-select: text; cursor: default;
+    max-height: 108px; overflow: hidden; position: relative;
+  }
+  .item .body.expanded { max-height: none; }
+  .item .body.clamped::after {
+    content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 28px;
+    background: linear-gradient(transparent, var(--card));
+  }
+  .item .more {
+    background: none; border: none; color: var(--accent);
+    font-size: 11px; font-family: inherit; cursor: pointer; padding: 4px 0 0;
+  }
+  .item img {
+    max-width: 100%; border-radius: 7px; display: block; cursor: pointer;
+  }
+  .empty {
+    text-align: center; color: var(--muted); font-size: 13px;
+    padding: 48px 24px; line-height: 2;
+  }
+  .toast {
+    position: fixed; bottom: 16px; left: 50%; transform: translateX(-50%);
+    background: #21262d; border: 1px solid #30363d; border-radius: 8px;
+    color: var(--text); font-size: 12px; padding: 7px 14px;
+    opacity: 0; transition: opacity 0.2s; pointer-events: none;
+  }
+  .toast.show { opacity: 1; }
+</style>
+</head>
+<body>
+  <header>
+    <div class="logo">S</div>
+    <div>
+      <h1>Snag</h1>
+      <div class="sub" id="count">…</div>
+    </div>
+    <div class="spacer"></div>
+    <div class="sub"><kbd>Ctrl</kbd>+<kbd>Alt</kbd>+<kbd>S</kbd> เก็บ · <kbd>Ctrl</kbd>+<kbd>Alt</kbd>+<kbd>O</kbd> เปิด</div>
+  </header>
+
+  <div class="toolbar">
+    <input type="text" id="search" placeholder="ค้นหาในกล่อง…" />
+    <button id="clear-btn">ล้างทั้งหมด</button>
+  </div>
+
+  <div id="list"></div>
+  <div class="toast" id="toast"></div>
+
+<script>
+  const { invoke } = window.__TAURI__.core;
+  const { listen } = window.__TAURI__.event;
+  const $ = (id) => document.getElementById(id);
+
+  let items = [];
+
+  function timeAgo(ts) {
+    const mins = Math.floor((Date.now() - ts) / 60000);
+    if (mins < 1) return "เมื่อครู่";
+    if (mins < 60) return `${mins} นาทีที่แล้ว`;
+    const hrs = Math.floor(mins / 60);
+    if (hrs < 24) return `${hrs} ชม.ที่แล้ว`;
+    const d = new Date(ts);
+    return d.toLocaleDateString("th-TH", { day: "numeric", month: "short" });
+  }
+
+  function toast(msg) {
+    const t = $("toast");
+    t.textContent = msg;
+    t.classList.add("show");
+    setTimeout(() => t.classList.remove("show"), 1400);
+  }
+
+  async function refresh() {
+    items = await invoke("list_items");
+    render();
+  }
+
+  function render() {
+    const q = $("search").value.trim().toLowerCase();
+    const shown = q
+      ? items.filter((it) =>
+          (it.text || "").toLowerCase().includes(q) ||
+          (it.source || "").toLowerCase().includes(q))
+      : items;
+
+    $("count").textContent = `${items.length} รายการในกล่อง`;
+    const list = $("list");
+    list.innerHTML = "";
+
+    if (shown.length === 0) {
+      list.innerHTML = `<div class="empty">${
+        q ? "ไม่เจอที่ค้นหา" :
+        "กล่องยังว่าง<br>ไฮไลต์ข้อความที่ไหนก็ได้ แล้วกด <b>Ctrl+Alt+S</b>"
+      }</div>`;
+      return;
+    }
+
+    for (const it of shown) {
+      const el = document.createElement("div");
+      el.className = "item";
+
+      const meta = document.createElement("div");
+      meta.className = "meta";
+      const src = document.createElement("span");
+      src.className = "src";
+      src.textContent = it.source || "ไม่ทราบที่มา";
+      const time = document.createElement("span");
+      time.textContent = `· ${timeAgo(it.createdAt)}`;
+      const spacer = document.createElement("span");
+      spacer.className = "spacer";
+
+      const copyBtn = document.createElement("button");
+      copyBtn.textContent = "คัดลอก";
+      copyBtn.addEventListener("click", async () => {
+        await invoke("copy_item", { id: it.id });
+        toast("คัดลอกแล้ว");
+      });
+
+      const delBtn = document.createElement("button");
+      delBtn.className = "del";
+      delBtn.textContent = "✕";
+      delBtn.addEventListener("click", async () => {
+        await invoke("delete_item", { id: it.id });
+        refresh();
+      });
+
+      meta.append(src, time, spacer, copyBtn, delBtn);
+      el.appendChild(meta);
+
+      if (it.kind === "text") {
+        const body = document.createElement("div");
+        body.className = "body";
+        body.textContent = it.text;
+        el.appendChild(body);
+        // ถ้าเนื้อหายาว → ตัดพร้อมปุ่มขยาย
+        requestAnimationFrame(() => {
+          if (body.scrollHeight > body.clientHeight + 4) {
+            body.classList.add("clamped");
+            const more = document.createElement("button");
+            more.className = "more";
+            more.textContent = "ดูทั้งหมด";
+            more.addEventListener("click", () => {
+              const expanded = body.classList.toggle("expanded");
+              body.classList.toggle("clamped", !expanded);
+              more.textContent = expanded ? "ย่อ" : "ดูทั้งหมด";
+            });
+            el.appendChild(more);
+          }
+        });
+      } else if (it.thumb) {
+        const img = document.createElement("img");
+        img.src = it.thumb;
+        img.title = "คลิกเพื่อเปิดรูปเต็ม";
+        img.addEventListener("click", () => invoke("open_item", { id: it.id }));
+        el.appendChild(img);
+      }
+
+      list.appendChild(el);
+    }
+  }
+
+  $("search").addEventListener("input", render);
+
+  $("clear-btn").addEventListener("click", async (e) => {
+    const btn = e.target;
+    if (btn.classList.contains("confirm")) {
+      await invoke("clear_all");
+      btn.classList.remove("confirm");
+      btn.textContent = "ล้างทั้งหมด";
+      refresh();
+    } else {
+      btn.classList.add("confirm");
+      btn.textContent = "แน่ใจ?";
+      setTimeout(() => {
+        btn.classList.remove("confirm");
+        btn.textContent = "ล้างทั้งหมด";
+      }, 2000);
+    }
+  });
+
+  listen("snagged", refresh);
+  refresh();
+</script>
+</body>
+</html>

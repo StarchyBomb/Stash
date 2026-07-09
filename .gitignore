@@ -1,0 +1,29 @@
+# Build outputs
+stash-desktop/src-tauri/target/
+stash-desktop/src-tauri/gen/
+
+# Node
+node_modules/
+
+# IDE / Editor
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Agent / AI
+.agent/
+.claude/
+.gemini/
+
+# OS
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+# Vercel
+stash-landing/.vercel/
+
+# Temporary
+*.log
+*.tmp
